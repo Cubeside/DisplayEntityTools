@@ -1,0 +1,15 @@
+name: DisplayEntityTools
+
+main: de.cubeside.displayentitytools.DisplayEntityToolsPlugin
+
+version: "0.0.1"
+api-version: 1.20
+
+author: Brokkonaut
+description: Edit Displayentites
+depend: [PlayerUUIDCache,CubesideUtils,WorldEdit]
+softdepend: [WorldGuard]
+commands:
+   displayentity:
+     description: Edit Displayentity
+     aliases: [de]
