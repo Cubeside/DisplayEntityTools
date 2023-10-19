@@ -43,7 +43,7 @@ public class SetTextAlignCommand extends AbstractEditDisplayEntityCommand {
         }
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entitys entfernt!").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
             return true;
         }
         ((TextDisplay) displayEntity.getEntity()).setAlignment(align);

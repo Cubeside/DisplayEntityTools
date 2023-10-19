@@ -44,13 +44,13 @@ public class SetTextAlphaCommand extends AbstractEditDisplayEntityCommand {
         }
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entitys entfernt!").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
             return true;
         }
         ((TextDisplay) displayEntity.getEntity()).setTextOpacity((byte) alpha);
 
         String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + "hat nun eine Alpha-Transparenz von " + alpha + ".").color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Der Text des Display-Entities " + name + "hat nun eine Alpha-Transparenz von " + alpha + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

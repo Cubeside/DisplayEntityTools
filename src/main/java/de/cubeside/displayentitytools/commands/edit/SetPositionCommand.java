@@ -87,7 +87,7 @@ public class SetPositionCommand extends AbstractEditDisplayEntityCommand {
         }
         Location newDisplayLoc = displayLoc.clone().set(x, y, z);
         if (newDisplayLoc.distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der neuen Position des Display-Entitys entfernt!").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("Du bist zu weit von der neuen Position des Display-Entities entfernt!").color(NamedTextColor.RED));
             return true;
         }
         if (plugin.getWorldGuardHelper() != null && !plugin.getWorldGuardHelper().canBuild(player, newDisplayLoc)) {

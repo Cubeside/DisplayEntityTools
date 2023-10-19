@@ -55,7 +55,7 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
         Location newDisplayLoc = displayLoc.clone();
         newDisplayLoc.setYaw((float) alpha);
         if (newDisplayLoc.distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entitys entfernt!").color(NamedTextColor.RED));
+            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
             return true;
         }
         displayEntity.teleport(newDisplayLoc);
