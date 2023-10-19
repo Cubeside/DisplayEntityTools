@@ -1,10 +1,13 @@
 package de.cubeside.displayentitytools;
 
+import de.cubeside.displayentitytools.commands.edit.AbstractEditDisplayEntityCommand;
 import de.iani.cubesideutils.StringUtil;
+import de.iani.playerUUIDCache.CachedPlayer;
 import java.util.UUID;
 import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -12,6 +15,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -83,7 +87,12 @@ public class DisplayEntityData {
         Component main = Component.text(eName).color(NamedTextColor.AQUA);
         Component extra = null;
         if (type == DisplayEntityType.TEXT) {
-            extra = ((TextDisplay) display).text();
+            String textString = LegacyComponentSerializer.legacySection().serialize(((TextDisplay) display).text());
+            int firstNewline = textString.indexOf("\n");
+            if (firstNewline >= 0) {
+                textString = textString.substring(0, firstNewline) + "...";
+            }
+            extra = Component.text(StringUtil.stripColors(StringUtil.revertColors(textString)));
         } else if (type == DisplayEntityType.BLOCK) {
             extra = Component.text(((BlockDisplay) display).getBlock().getAsString());
         } else if (type == DisplayEntityType.ITEM) {
@@ -97,8 +106,15 @@ public class DisplayEntityData {
         return main;
     }
 
-    public Component getDescription() {
-        return Component.text("");
+    public Component getDescription(Player player) {
+        String name = AbstractEditDisplayEntityCommand.getNameAndOwner(plugin, player, this);
+        Component descr = Component.text("Display-Entity " + name).color(NamedTextColor.WHITE);
+        if (owner != null) {
+            CachedPlayer ownerPlayer = plugin.getPlayerUUIDCache().getPlayer(owner);
+            descr = descr.appendNewline().append(Component.text("Besitzer: ").append(Component.text(ownerPlayer != null ? ownerPlayer.getName() : owner.toString()).color(NamedTextColor.AQUA)));
+        }
+        descr = descr.appendNewline().append(Component.text("Typ: ").append(Component.text(StringUtil.capitalizeFirstLetter(type.name(), true)).color(NamedTextColor.AQUA)));
+        return descr;
     }
 
     public String getName() {

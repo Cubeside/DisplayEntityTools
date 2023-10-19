@@ -51,7 +51,7 @@ public class SetTextLineWidthCommand extends AbstractEditDisplayEntityCommand {
         ((TextDisplay) displayEntity.getEntity()).setLineWidth(lineWidth);
 
         String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + "hat nun eine Zeilenbreite von " + lineWidth + " Zeichen.").color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + "hat nun eine Zeilenbreite von " + lineWidth + " Pixeln.").color(NamedTextColor.GREEN));
         return true;
     }
 

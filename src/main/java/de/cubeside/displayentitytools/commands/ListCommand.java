@@ -108,14 +108,16 @@ public class ListCommand extends SubCommand {
             displayEntities.removeIf(e -> !finalOwner.equals(e.getOwner()));
         }
         if (displayEntities.isEmpty()) {
+            player.sendMessage(Component.text(""));
             player.sendMessage(Component.text("Keine Display-Entites gefunden.").color(NamedTextColor.RED));
         } else {
-            player.sendMessage(Component.text(displayEntities.size() + " Display-Entites gefunden:").color(NamedTextColor.GREEN));
+            player.sendMessage(Component.text(""));
+            player.sendMessage(Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
             displayEntities.sort((a, b) -> Double.compare(a.getLocation().distanceSquared(playerLoc), b.getLocation().distanceSquared(playerLoc)));
             for (DisplayEntityData e : displayEntities) {
                 Component component = e.getShortDescription();
                 component = component.clickEvent(ClickEvent.runCommand("/displayentity select " + e.getUUID()));
-                component = component.hoverEvent(HoverEvent.showText(e.getDescription()));
+                component = component.hoverEvent(HoverEvent.showText(e.getDescription(player)));
                 player.sendMessage(component);
             }
         }
