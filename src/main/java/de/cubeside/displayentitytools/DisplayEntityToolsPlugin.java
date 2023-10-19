@@ -3,6 +3,7 @@ package de.cubeside.displayentitytools;
 import de.cubeside.displayentitytools.commands.GetItemCommand;
 import de.cubeside.displayentitytools.commands.ListCommand;
 import de.cubeside.displayentitytools.commands.SelectCommand;
+import de.cubeside.displayentitytools.commands.edit.GetNbtCommand;
 import de.cubeside.displayentitytools.commands.edit.RemoveCommand;
 import de.cubeside.displayentitytools.commands.edit.SetBillboardModeCommand;
 import de.cubeside.displayentitytools.commands.edit.SetBlockCommand;
@@ -17,10 +18,12 @@ import de.cubeside.displayentitytools.commands.edit.SetShadowCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextAlignCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextAlphaCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextBackgroundColorCommand;
+import de.cubeside.displayentitytools.commands.edit.SetTextLineWidthCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextShadowCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTransformRotationCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTransformTranslationScaleCommand;
 import de.cubeside.displayentitytools.commands.edit.TextSetCommand;
+import de.cubeside.nmsutils.NMSUtils;
 import de.iani.cubesideutils.bukkit.commands.CommandRouter;
 import de.iani.cubesideutils.bukkit.items.CustomHeads;
 import de.iani.playerUUIDCache.PlayerUUIDCache;
@@ -45,6 +48,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
     private ItemStack blockSpawnerItem;
     private ItemStack itemSpawnerItem;
     private WorldGuardHelper worldGuardHelper;
+    private NMSUtils nmsUtils;
     private PlayerUUIDCache playerUUIDCache;
 
     private HashMap<UUID, UUID> currentEditingDisplayEntity = new HashMap<>();
@@ -69,6 +73,9 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         if (playerUUIDCache != null) {
             this.playerUUIDCache = (PlayerUUIDCache) playerUUIDCache;
         }
+        if (getServer().getPluginManager().getPlugin("CubesideNMSUtils") != null) {
+            nmsUtils = getServer().getServicesManager().load(NMSUtils.class);
+        }
     }
 
     private void configureCommands() {
@@ -89,6 +96,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new SetLightLevelCommand(this), "setlightlevel");
         displayentityCommands.addCommandMapping(new SetShadowCommand(this), "setshadow");
         displayentityCommands.addCommandMapping(new SetGlowingCommand(this), "setglowing");
+        displayentityCommands.addCommandMapping(new GetNbtCommand(this), "getnbt");
 
         displayentityCommands.addCommandMapping(new TextSetCommand(this, TextSetCommand.Mode.SET), "settext");
         displayentityCommands.addCommandMapping(new TextSetCommand(this, TextSetCommand.Mode.ADD), "addtext");
@@ -98,6 +106,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new SetTextShadowCommand(this), "settextshadow");
         displayentityCommands.addCommandMapping(new SetTextAlphaCommand(this), "settextalpha");
         displayentityCommands.addCommandMapping(new SetTextBackgroundColorCommand(this), "settextbackgroundcolor");
+        displayentityCommands.addCommandMapping(new SetTextLineWidthCommand(this), "settextlinewidth");
 
         displayentityCommands.addCommandMapping(new SetItemCommand(this), "setitem");
         displayentityCommands.addCommandMapping(new SetBlockCommand(this), "setblock");
@@ -182,6 +191,10 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
 
     public PlayerUUIDCache getPlayerUUIDCache() {
         return playerUUIDCache;
+    }
+
+    public NMSUtils getNmsUtils() {
+        return nmsUtils;
     }
 
     public boolean canEdit(Player player, DisplayEntityData displayEntity) {

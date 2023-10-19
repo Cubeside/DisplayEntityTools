@@ -60,9 +60,9 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
         }
         displayEntity.teleport(newDisplayLoc);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
+        String name = getNameAndOwner(player, displayEntity);
         String falpha = format.format(alpha);
-        player.sendMessage(Component.text("Das Display-Entity " + name + " hat nun die Rotation " + falpha + ".").color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun die Rotation " + falpha + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

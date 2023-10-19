@@ -85,8 +85,8 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
             displayEntity.getEntity().setGlowColorOverride(color);
         }
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Das Display-Entity " + name + " leuchtet nun " + (noGlow ? "nicht" : ("in der Farbe " + toHex(color))) + ".").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Das Display-Entity " + name + "leuchtet nun " + (noGlow ? "nicht" : ("in der Farbe " + toHex(color))) + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

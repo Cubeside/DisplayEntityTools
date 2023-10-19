@@ -36,11 +36,11 @@ public class RemoveCommand extends AbstractEditDisplayEntityCommand {
         if (added || player.getGameMode() == GameMode.CREATIVE) {
             displayEntity.getEntity().remove();
             plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), null);
-            String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
+            String name = getNameAndOwner(player, displayEntity);
             if (added) {
-                player.sendMessage(Component.text("Das Display-Entity " + name + " wurde entfernt und befindet sich wieder in deinem Inventar.").color(NamedTextColor.GREEN));
+                player.sendMessage(Component.text("Das Display-Entity " + name + "wurde entfernt und befindet sich wieder in deinem Inventar.").color(NamedTextColor.GREEN));
             } else {
-                player.sendMessage(Component.text("Das Display-Entity " + name + " wurde entfernt.").color(NamedTextColor.GREEN));
+                player.sendMessage(Component.text("Das Display-Entity " + name + "wurde entfernt.").color(NamedTextColor.GREEN));
             }
         } else {
             player.sendMessage(Component.text("Du hast keinen Platz im Inventar frei.").color(NamedTextColor.RED));

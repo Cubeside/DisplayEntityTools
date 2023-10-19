@@ -1,6 +1,7 @@
 package de.cubeside.displayentitytools.commands.edit;
 
 import de.cubeside.displayentitytools.DisplayEntityData;
+import de.cubeside.displayentitytools.DisplayEntityToolsPermissions;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
 import de.iani.cubesideutils.commands.ArgsParser;
@@ -64,17 +65,19 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
                 return true;
             }
         }
-        if (x < -5 || x > 5) {
-            player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
-            return true;
-        }
-        if (y < -5 || y > 5) {
-            player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
-            return true;
-        }
-        if (z < -5 || z > 5) {
-            player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
-            return true;
+        if (!player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES)) {
+            if (x < -5 || x > 5) {
+                player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
+                return true;
+            }
+            if (y < -5 || y > 5) {
+                player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
+                return true;
+            }
+            if (z < -5 || z > 5) {
+                player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
+                return true;
+            }
         }
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
@@ -92,8 +95,8 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
         }
         displayEntity.getEntity().setTransformation(newTransform);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Die " + (scale ? "Skalierung" : "Translation") + " der Transformation vom Display-Entity " + name + " wurde gesetzt.").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Die " + (scale ? "Skalierung" : "Translation") + " der Transformation vom Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
         return true;
     }
 

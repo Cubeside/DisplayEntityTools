@@ -48,8 +48,8 @@ public class SetTextAlignCommand extends AbstractEditDisplayEntityCommand {
         }
         ((TextDisplay) displayEntity.getEntity()).setAlignment(align);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Das Display-Entity " + name + " hat nun das Alignment " + StringUtil.capitalizeFirstLetter(align.name(), true) + ".").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun das Alignment " + StringUtil.capitalizeFirstLetter(align.name(), true) + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

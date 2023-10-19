@@ -74,11 +74,11 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
         }
         displayEntity.getEntity().setBrightness(lightAuto ? null : new Brightness(blocklight, sunlight));
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
+        String name = getNameAndOwner(player, displayEntity);
         if (lightAuto) {
-            player.sendMessage(Component.text("Das Display-Entity " + name + " hat nun automatische Lichtlevel.").color(NamedTextColor.GREEN));
+            player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun automatische Lichtlevel.").color(NamedTextColor.GREEN));
         } else {
-            player.sendMessage(Component.text("Das Display-Entity " + name + " hat nun die Lichtlevel Blocklicht " + blocklight + " und Sonnenlight " + sunlight + ".").color(NamedTextColor.GREEN));
+            player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun die Lichtlevel Blocklicht " + blocklight + " und Sonnenlight " + sunlight + ".").color(NamedTextColor.GREEN));
         }
         return true;
     }

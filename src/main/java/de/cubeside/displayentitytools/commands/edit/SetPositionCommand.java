@@ -97,11 +97,11 @@ public class SetPositionCommand extends AbstractEditDisplayEntityCommand {
 
         displayEntity.teleport(newDisplayLoc);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
+        String name = getNameAndOwner(player, displayEntity);
         String fx = format.format(x);
         String fy = format.format(y);
         String fz = format.format(z);
-        player.sendMessage(Component.text("Das Display-Entity " + name + " wurde an die Position " + fx + " " + fy + " " + fz + " bewegt.").color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Das Display-Entity " + name + "wurde an die Position " + fx + " " + fy + " " + fz + " bewegt.").color(NamedTextColor.GREEN));
         return true;
     }
 

@@ -63,8 +63,8 @@ public class SetShadowCommand extends AbstractEditDisplayEntityCommand {
         displayEntity.getEntity().setShadowRadius(shadowRadius);
         displayEntity.getEntity().setShadowStrength(shadowStrength);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Das Display-Entity " + name + " hat nun den Schattenradius " + format.format(shadowRadius) + " mit Stärke " + format.format(shadowStrength) + ".").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun den Schattenradius " + format.format(shadowRadius) + " mit Stärke " + format.format(shadowStrength) + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

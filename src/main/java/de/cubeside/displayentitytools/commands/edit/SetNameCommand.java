@@ -28,12 +28,14 @@ public class SetNameCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public boolean onEditDisplayEntityCommand(Player player, DisplayEntityData displayEntity, Command command, String alias, String commandString, ArgsParser args) {
+        String oldName = getNameAndOwner(player, displayEntity);
         String name = args.hasNext() ? args.getAll("") : null;
         displayEntity.setName(name);
+
         if (name == null) {
-            player.sendMessage(Component.text("Der Name des ausgewählten Display-Entities wurde entfernt!").color(NamedTextColor.GREEN));
+            player.sendMessage(Component.text("Der Name des Display-Entities " + oldName + "wurde entfernt!").color(NamedTextColor.GREEN));
         } else {
-            player.sendMessage(Component.text("Der Name des ausgewählten Display-Entities wurde auf '" + name + "' gesetzt!").color(NamedTextColor.GREEN));
+            player.sendMessage(Component.text("Der Name des Display-Entities " + oldName + "wurde auf '" + name + "' gesetzt!").color(NamedTextColor.GREEN));
         }
         return true;
     }

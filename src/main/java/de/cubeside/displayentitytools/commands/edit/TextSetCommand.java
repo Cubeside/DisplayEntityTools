@@ -64,8 +64,8 @@ public class TextSetCommand extends AbstractEditDisplayEntityCommand {
         }
         ((TextDisplay) displayEntity.getEntity()).text(textComponent);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Text für das Display-Entity " + name + " wurde gesetzt.").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Text für das Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
         return true;
     }
 

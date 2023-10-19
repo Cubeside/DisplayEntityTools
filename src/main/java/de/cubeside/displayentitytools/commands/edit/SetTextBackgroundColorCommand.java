@@ -82,8 +82,8 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
             deprecatedSetBackgroundColor((TextDisplay) displayEntity.getEntity(), color);
         }
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Das Display-Entity " + name + " verwendet nun " + (defaultColor ? "die Standard-Hintergrundfarbe" : ("die Hintergrundfarbe " + toHex(color))) + ".").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Das Display-Entity " + name + "verwendet nun " + (defaultColor ? "die Standard-Hintergrundfarbe" : ("die Hintergrundfarbe " + toHex(color))) + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

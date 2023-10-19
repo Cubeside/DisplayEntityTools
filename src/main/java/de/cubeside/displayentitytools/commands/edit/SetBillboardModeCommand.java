@@ -48,8 +48,8 @@ public class SetBillboardModeCommand extends AbstractEditDisplayEntityCommand {
         }
         displayEntity.getEntity().setBillboard(billboard);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Das Display-Entity " + name + " hat nun den Billboard-Modus " + StringUtil.capitalizeFirstLetter(billboard.name(), true) + ".").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun den Billboard-Modus " + StringUtil.capitalizeFirstLetter(billboard.name(), true) + ".").color(NamedTextColor.GREEN));
         return true;
     }
 

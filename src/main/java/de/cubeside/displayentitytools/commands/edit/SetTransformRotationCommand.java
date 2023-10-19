@@ -74,6 +74,17 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
                 return true;
             }
         }
+        double lengthSq = x * x + y * y + z * z;
+        if (lengthSq > 0) {
+            double length = Math.sqrt(lengthSq);
+            x /= length;
+            y /= length;
+            z /= length;
+        } else {
+            x = 0;
+            y = 1;
+            z = 0;
+        }
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
             player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entitys entfernt!").color(NamedTextColor.RED));
@@ -90,8 +101,8 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
         }
         displayEntity.getEntity().setTransformation(newTransform);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Die " + (left ? "linke" : "rechte") + " Rotation der Transformation vom Display-Entity " + name + " wurde gesetzt.").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Die " + (left ? "linke" : "rechte") + " Rotation der Transformation vom Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
         return true;
     }
 

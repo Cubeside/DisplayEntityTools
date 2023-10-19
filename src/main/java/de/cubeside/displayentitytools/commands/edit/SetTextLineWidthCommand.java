@@ -1,6 +1,7 @@
 package de.cubeside.displayentitytools.commands.edit;
 
 import de.cubeside.displayentitytools.DisplayEntityData;
+import de.cubeside.displayentitytools.DisplayEntityToolsPermissions;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
 import de.iani.cubesideutils.commands.ArgsParser;
@@ -12,8 +13,8 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 
-public class SetTextAlphaCommand extends AbstractEditDisplayEntityCommand {
-    public SetTextAlphaCommand(DisplayEntityToolsPlugin plugin) {
+public class SetTextLineWidthCommand extends AbstractEditDisplayEntityCommand {
+    public SetTextLineWidthCommand(DisplayEntityToolsPlugin plugin) {
         super(plugin);
     }
 
@@ -24,7 +25,7 @@ public class SetTextAlphaCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public String getUsage() {
-        return "<alpha>";
+        return "<width>";
     }
 
     @Override
@@ -33,13 +34,13 @@ public class SetTextAlphaCommand extends AbstractEditDisplayEntityCommand {
             return false;
         }
         String alphaString = args.getNext();
-        int alpha = -1;
+        int lineWidth = -1;
         try {
-            alpha = Integer.parseInt(alphaString);
+            lineWidth = Integer.parseInt(alphaString);
         } catch (NumberFormatException e) {
         }
-        if (alpha < 0 || alpha > 255) {
-            player.sendMessage(Component.text("Ungültiger Alpha-Wert (0...255): " + alphaString).color(NamedTextColor.RED));
+        if (lineWidth < 1 || (lineWidth > 1000 && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES))) {
+            player.sendMessage(Component.text("Ungültiger Zeilenbreite-Wert (1...1000): " + alphaString).color(NamedTextColor.RED));
             return true;
         }
 
@@ -47,18 +48,18 @@ public class SetTextAlphaCommand extends AbstractEditDisplayEntityCommand {
             player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entitys entfernt!").color(NamedTextColor.RED));
             return true;
         }
-        ((TextDisplay) displayEntity.getEntity()).setTextOpacity((byte) alpha);
+        ((TextDisplay) displayEntity.getEntity()).setLineWidth(lineWidth);
 
         String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + "hat nun eine Alpha-Transparenz von " + alpha + ".").color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + "hat nun eine Zeilenbreite von " + lineWidth + " Zeichen.").color(NamedTextColor.GREEN));
         return true;
     }
 
     @Override
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
         if (args.remaining() == 1) {
-            int alpha = ((TextDisplay) displayEntity.getEntity()).getTextOpacity() & 0xff;
-            return List.of(Integer.toString(alpha));
+            int lineWidth = ((TextDisplay) displayEntity.getEntity()).getLineWidth();
+            return List.of(Integer.toString(lineWidth));
         }
         return List.of();
     }

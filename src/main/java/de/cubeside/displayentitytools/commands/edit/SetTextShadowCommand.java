@@ -40,8 +40,8 @@ public class SetTextShadowCommand extends AbstractEditDisplayEntityCommand {
         }
         ((TextDisplay) displayEntity.getEntity()).setShadowed(shadow);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + " hat nun " + (shadow ? "" : "keinen ") + "Schatten.").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Der Text des Display-Entitys " + name + "hat nun " + (shadow ? "" : "keinen ") + "Schatten.").color(NamedTextColor.GREEN));
         return true;
     }
 

@@ -10,6 +10,7 @@ import de.iani.cubesideutils.bukkit.commands.exceptions.InternalCommandException
 import de.iani.cubesideutils.bukkit.commands.exceptions.NoPermissionException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.RequiresPlayerException;
 import de.iani.cubesideutils.commands.ArgsParser;
+import de.iani.playerUUIDCache.CachedPlayer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -114,4 +115,19 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
         return List.of();
     }
 
+    public static String getNameAndOwner(DisplayEntityToolsPlugin plugin, Player player, DisplayEntityData displayEntity) {
+        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "' ";
+        String owner = "";
+        if (displayEntity.getOwner() != null && !player.getUniqueId().equals(displayEntity.getOwner())) {
+            CachedPlayer cp = plugin.getPlayerUUIDCache().getPlayer(displayEntity.getOwner());
+            if (cp != null) {
+                owner = "von " + cp.getName() + " ";
+            }
+        }
+        return name + owner;
+    }
+
+    public String getNameAndOwner(Player player, DisplayEntityData displayEntity) {
+        return getNameAndOwner(plugin, player, displayEntity);
+    }
 }

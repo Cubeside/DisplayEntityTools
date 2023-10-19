@@ -66,8 +66,8 @@ public class SetItemCommand extends AbstractEditDisplayEntityCommand {
         }
         ((ItemDisplay) displayEntity.getEntity()).setItemStack(stack);
 
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "'";
-        player.sendMessage(Component.text("Item für das Display-Entity " + name + " wurde gesetzt.").color(NamedTextColor.GREEN));
+        String name = getNameAndOwner(player, displayEntity);
+        player.sendMessage(Component.text("Item für das Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
         return true;
     }
 

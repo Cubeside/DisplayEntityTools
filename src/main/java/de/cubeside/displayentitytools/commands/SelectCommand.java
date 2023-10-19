@@ -2,6 +2,7 @@ package de.cubeside.displayentitytools.commands;
 
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
+import de.cubeside.displayentitytools.commands.edit.AbstractEditDisplayEntityCommand;
 import de.iani.cubesideutils.bukkit.commands.SubCommand;
 import de.iani.cubesideutils.bukkit.commands.exceptions.DisallowsCommandBlockException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.IllegalSyntaxException;
@@ -69,7 +70,8 @@ public class SelectCommand extends SubCommand {
             sender.sendMessage(Component.text("Du hast keine Berechtigung, dieses Display-Entity zu bearbeiten.").color(NamedTextColor.RED));
             return true;
         }
-        sender.sendMessage(Component.text("Das Display-Entity wurde ausgewählt!").color(NamedTextColor.GREEN));
+        String name = AbstractEditDisplayEntityCommand.getNameAndOwner(plugin, player, displayEntity);
+        sender.sendMessage(Component.text("Das Display-Entity " + name + "wurde ausgewählt!").color(NamedTextColor.GREEN));
         plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), displayEntity.getUUID());
         return true;
     }
