@@ -104,6 +104,10 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
             return List.of();
         }
         displayEntity = new DisplayEntityData(plugin, d);
+        DisplayEntityType requiredType = getRequiredType();
+        if (requiredType != null && displayEntity.getType() != requiredType) {
+            return List.of();
+        }
         if (!plugin.canEdit(player, displayEntity)) {
             return List.of();
         }
