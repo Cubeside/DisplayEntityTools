@@ -59,6 +59,10 @@ public class SetBlockCommand extends AbstractEditDisplayEntityCommand {
         } else {
             ItemStack stack = player.getInventory().getItemInMainHand();
             if (stack != null) {
+                if (!stack.getType().isBlock()) {
+                    player.sendMessage(Component.text("Ungültiger Block!").color(NamedTextColor.RED));
+                    return true;
+                }
                 block = stack.getType().createBlockData();
             } else {
                 block = Material.AIR.createBlockData();

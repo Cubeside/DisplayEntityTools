@@ -44,7 +44,7 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
                     blocklight = Integer.parseInt(str);
                 } catch (NumberFormatException e) {
                 }
-                if (blocklight < 0) {
+                if (blocklight < 0 || blocklight > 15) {
                     player.sendMessage(Component.text("Invalid value for block light (0..15): " + str).color(NamedTextColor.RED));
                     return true;
                 }
@@ -60,7 +60,7 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
                 sunlight = Integer.parseInt(str);
             } catch (NumberFormatException e) {
             }
-            if (sunlight < 0) {
+            if (sunlight < 0 || sunlight > 15) {
                 player.sendMessage(Component.text("Invalid value for sun light (0..15): " + str).color(NamedTextColor.RED));
                 return true;
             }
