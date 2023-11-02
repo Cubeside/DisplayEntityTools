@@ -14,7 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 
-public class TextSetCommand extends AbstractEditDisplayEntityCommand {
+public class SetTextCommand extends AbstractEditDisplayEntityCommand {
     public enum Mode {
         SET,
         ADD,
@@ -23,7 +23,7 @@ public class TextSetCommand extends AbstractEditDisplayEntityCommand {
 
     private Mode mode;
 
-    public TextSetCommand(DisplayEntityToolsPlugin plugin, Mode mode) {
+    public SetTextCommand(DisplayEntityToolsPlugin plugin, Mode mode) {
         super(plugin);
         this.mode = mode;
     }
@@ -65,7 +65,7 @@ public class TextSetCommand extends AbstractEditDisplayEntityCommand {
         ((TextDisplay) displayEntity.getEntity()).text(textComponent);
 
         String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Text für das Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
+        player.sendMessage(Component.text("Text für das Display-Entity " + name + "wurde bearbeitet.").color(NamedTextColor.GREEN));
         return true;
     }
 
