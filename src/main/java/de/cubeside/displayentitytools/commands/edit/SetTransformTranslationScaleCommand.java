@@ -66,16 +66,17 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
             }
         }
         if (!player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES)) {
-            if (x < -5 || x > 5) {
-                player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
+            int sizeLimit = scale ? 20 : 5;
+            if (x < -sizeLimit || x > sizeLimit) {
+                player.sendMessage(Component.text("Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen").color(NamedTextColor.RED));
                 return true;
             }
-            if (y < -5 || y > 5) {
-                player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
+            if (y < -sizeLimit || y > sizeLimit) {
+                player.sendMessage(Component.text("Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen").color(NamedTextColor.RED));
                 return true;
             }
-            if (z < -5 || z > 5) {
-                player.sendMessage(Component.text("Die Werte müssen zwischen -5 und 5 liegen").color(NamedTextColor.RED));
+            if (z < -sizeLimit || z > sizeLimit) {
+                player.sendMessage(Component.text("Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen").color(NamedTextColor.RED));
                 return true;
             }
         }
