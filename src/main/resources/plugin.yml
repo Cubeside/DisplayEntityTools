@@ -8,7 +8,7 @@ api-version: 1.20
 author: Brokkonaut
 description: Edit Displayentites
 depend: [PlayerUUIDCache,CubesideUtils,WorldEdit]
-softdepend: [WorldGuard,CubesideNMSUtils]
+softdepend: [ WorldGuard,CubesideNMSUtils,ChestShop ]
 commands:
    displayentity:
      description: Edit Displayentity

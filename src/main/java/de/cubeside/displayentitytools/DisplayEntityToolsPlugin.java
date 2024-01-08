@@ -1,5 +1,6 @@
 package de.cubeside.displayentitytools;
 
+import de.cubeside.displayentitytools.chestshop.ChestShopListener;
 import de.cubeside.displayentitytools.commands.GetItemCommand;
 import de.cubeside.displayentitytools.commands.ListCommand;
 import de.cubeside.displayentitytools.commands.SelectCommand;
@@ -44,6 +45,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class DisplayEntityToolsPlugin extends JavaPlugin {
+
+    public static final String ITEM_DISPLAY_NAME = "Item-Display";
+    public static final String BLOCK_DISPLAY_NAME = "Block-Display";
+    public static final String TEXT_DISPLAY_NAME = "Text-Display";
+
     private NamespacedKey spawnerNamespacedKey;
     private NamespacedKey dataNamespacedKey;
     private ItemStack textSpawnerItem;
@@ -77,6 +83,10 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         }
         if (getServer().getPluginManager().getPlugin("CubesideNMSUtils") != null) {
             nmsUtils = getServer().getServicesManager().load(NMSUtils.class);
+        }
+
+        if (getServer().getPluginManager().getPlugin("ChestShop") != null) {
+            this.getServer().getPluginManager().registerEvents(new ChestShopListener(this), this);
         }
     }
 
@@ -122,9 +132,10 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE5YmRlZjE1MTgzYzNkMGRhYzcyZWVlNzIxNGIxM2ZkYWU0ZTM4OTYwOWExMjEyZDFlMTYzMmEzZDg1YTMxIn19fQ==");
         ItemMeta meta = textSpawnerItem.getItemMeta();
         meta.getPersistentDataContainer().set(spawnerNamespacedKey, PersistentDataType.STRING, DisplayEntityType.TEXT.name());
-        meta.displayName(Component.text("Text-Display").color(NamedTextColor.LIGHT_PURPLE));
+        meta.displayName(Component.text(TEXT_DISPLAY_NAME).color(NamedTextColor.LIGHT_PURPLE));
         meta.lore(List.of(
-                Component.text("Spawnt ein ").color(NamedTextColor.WHITE).append(Component.text("Text-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
+                Component.text("Spawnt ein ").color(NamedTextColor.WHITE)
+                        .append(Component.text("Text-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
                 Component.text("an dem ausgewählten Ort.").color(NamedTextColor.WHITE)));
         textSpawnerItem.setItemMeta(meta);
 
@@ -132,9 +143,10 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWU4ZjJmZTM0ZDk3Nzk2YzE3YzAyZDJhNDM2YjA2YzE5MWFkNjY4MDVhNmY3NTU4YjIxOWFkM2Q4NGYzYzhiNCJ9fX0=");
         meta = blockSpawnerItem.getItemMeta();
         meta.getPersistentDataContainer().set(spawnerNamespacedKey, PersistentDataType.STRING, DisplayEntityType.BLOCK.name());
-        meta.displayName(Component.text("Block-Display").color(NamedTextColor.LIGHT_PURPLE));
+        meta.displayName(Component.text(BLOCK_DISPLAY_NAME).color(NamedTextColor.LIGHT_PURPLE));
         meta.lore(List.of(
-                Component.text("Spawnt ein ").color(NamedTextColor.WHITE).append(Component.text("Block-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
+                Component.text("Spawnt ein ").color(NamedTextColor.WHITE)
+                        .append(Component.text("Block-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
                 Component.text("an dem ausgewählten Ort.").color(NamedTextColor.WHITE)));
         blockSpawnerItem.setItemMeta(meta);
 
@@ -142,9 +154,10 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
                 "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTQ4YTg5MWUxNTFmZWI2N2Y0YjYyMGFlODVjZWRiN2Q5M2YxNjhjNTQxNzc3ZTBkNmNjMWViZDdhY2M0ODU3OSJ9fX0=");
         meta = itemSpawnerItem.getItemMeta();
         meta.getPersistentDataContainer().set(spawnerNamespacedKey, PersistentDataType.STRING, DisplayEntityType.ITEM.name());
-        meta.displayName(Component.text("Item-Display").color(NamedTextColor.LIGHT_PURPLE));
+        meta.displayName(Component.text(ITEM_DISPLAY_NAME).color(NamedTextColor.LIGHT_PURPLE));
         meta.lore(List.of(
-                Component.text("Spawnt ein ").color(NamedTextColor.WHITE).append(Component.text("Item-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
+                Component.text("Spawnt ein ").color(NamedTextColor.WHITE)
+                        .append(Component.text("Item-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
                 Component.text("an dem ausgewählten Ort.").color(NamedTextColor.WHITE)));
         itemSpawnerItem.setItemMeta(meta);
     }
@@ -157,6 +170,15 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
             default -> throw new IllegalArgumentException("Not implemented type: " + type);
         };
         return new ItemStack(stack);
+    }
+
+    public String getDisplayName(DisplayEntityType type) {
+        return switch (type) {
+            case TEXT -> TEXT_DISPLAY_NAME;
+            case BLOCK -> BLOCK_DISPLAY_NAME;
+            case ITEM -> ITEM_DISPLAY_NAME;
+            default -> throw new IllegalArgumentException("Not implemented type: " + type);
+        };
     }
 
     public DisplayEntityType getDisplayEntityType(ItemStack stack) {
@@ -203,7 +225,8 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
     }
 
     public boolean canEdit(Player player, DisplayEntityData displayEntity) {
-        if (!player.getUniqueId().equals(displayEntity.getOwner()) && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_EDIT_ALL)) {
+        if (!player.getUniqueId().equals(displayEntity.getOwner())
+                && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_EDIT_ALL)) {
             return false;
         }
         if (worldGuardHelper != null && !worldGuardHelper.canBuild(player, displayEntity.getLocation())) {
