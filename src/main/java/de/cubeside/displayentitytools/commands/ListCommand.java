@@ -27,6 +27,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class ListCommand extends SubCommand {
     private DisplayEntityToolsPlugin plugin;
@@ -42,14 +43,14 @@ public class ListCommand extends SubCommand {
 
     @Override
     public String getUsage() {
-        return "[text|block|item|*] [radius] [owner|*]";
+        return "[text|block|item|*] [radius] [angle] [owner|*]";
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String commandString, ArgsParser args) throws DisallowsCommandBlockException, RequiresPlayerException, NoPermissionException, IllegalSyntaxException, InternalCommandException {
         Player player = (Player) sender;
 
-        if (args.remaining() > 3) {
+        if (args.remaining() > 4) {
             return false;
         }
 
@@ -81,6 +82,21 @@ public class ListCommand extends SubCommand {
             }
         }
 
+        double angle = 360;
+        if (args.hasNext()) {
+            String as = args.getNext("");
+            try {
+                angle = Double.parseDouble(as);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(Component.text("Ungültiger Winkel (0...180): " + as).color(NamedTextColor.RED));
+                return true;
+            }
+            if (angle < 0 || angle > 180) {
+                sender.sendMessage(Component.text("Ungültiger Winkel (0...180): " + angle).color(NamedTextColor.RED));
+                return true;
+            }
+        }
+
         UUID owner = player.getUniqueId();
         if (args.hasNext()) {
             String ownerString = args.getNext();
@@ -106,6 +122,22 @@ public class ListCommand extends SubCommand {
         {
             final ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
             for (Display entity : entities) {
+                if (angle != 360) {
+                    final Vector playerLookVector = playerLoc.getDirection();
+                    final Vector entityDirectionVector = entity.getLocation().toVector().subtract(playerLoc.toVector()).normalize();
+                    final double dotProduct = playerLookVector.dot(entityDirectionVector);
+                    if (dotProduct < 0) {
+                        // Entity is behind the player
+                        continue;
+                    }
+
+                    final double angleToEntity = Math.toDegrees(Math.acos(dotProduct));
+                    if (angleToEntity > angle) {
+                        // Entity is outside the cone
+                        continue;
+                    }
+                }
+
                 final DisplayEntityData e = new DisplayEntityData(plugin, entity);
                 if (owner != null && !owner.equals(e.getOwner())) {
                     continue;
