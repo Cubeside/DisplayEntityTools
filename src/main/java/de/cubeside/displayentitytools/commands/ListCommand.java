@@ -48,9 +48,11 @@ public class ListCommand extends SubCommand {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String commandString, ArgsParser args) throws DisallowsCommandBlockException, RequiresPlayerException, NoPermissionException, IllegalSyntaxException, InternalCommandException {
         Player player = (Player) sender;
+
         if (args.remaining() > 3) {
             return false;
         }
+
         DisplayEntityType type = null;
         if (args.hasNext()) {
             String ts = args.getNext("");
@@ -63,6 +65,7 @@ public class ListCommand extends SubCommand {
                 }
             }
         }
+
         int radius = 10;
         if (args.hasNext()) {
             String as = args.getNext("");
@@ -72,11 +75,12 @@ public class ListCommand extends SubCommand {
                 sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + as).color(NamedTextColor.RED));
                 return true;
             }
+            if (radius < 1 || radius > 100) {
+                sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + radius).color(NamedTextColor.RED));
+                return true;
+            }
         }
-        if (radius < 1 || radius > 100) {
-            sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + radius).color(NamedTextColor.RED));
-            return true;
-        }
+
         UUID owner = player.getUniqueId();
         if (args.hasNext()) {
             String ownerString = args.getNext();
@@ -91,35 +95,39 @@ public class ListCommand extends SubCommand {
                 owner = ownerCached.getUniqueId();
             }
         }
+
         Class<? extends Display> clazz = Display.class;
         if (type != null) {
             clazz = type.getEntityClass();
         }
+
         Location playerLoc = player.getLocation();
         ArrayList<DisplayEntityData> displayEntities = new ArrayList<>();
         {
-            ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
+            final ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
             for (Display entity : entities) {
-                displayEntities.add(new DisplayEntityData(plugin, entity));
+                final DisplayEntityData e = new DisplayEntityData(plugin, entity);
+                if (owner != null && !owner.equals(e.getOwner())) {
+                    continue;
+                }
+                displayEntities.add(e);
             }
         }
-        if (owner != null) {
-            UUID finalOwner = owner;
-            displayEntities.removeIf(e -> !finalOwner.equals(e.getOwner()));
-        }
+
         if (displayEntities.isEmpty()) {
             player.sendMessage(Component.text(""));
             player.sendMessage(Component.text("Keine Display-Entites gefunden.").color(NamedTextColor.RED));
-        } else {
-            player.sendMessage(Component.text(""));
-            player.sendMessage(Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
-            displayEntities.sort((a, b) -> Double.compare(a.getLocation().distanceSquared(playerLoc), b.getLocation().distanceSquared(playerLoc)));
-            for (DisplayEntityData e : displayEntities) {
-                Component component = e.getShortDescription();
-                component = component.clickEvent(ClickEvent.runCommand("/displayentity select " + e.getUUID()));
-                component = component.hoverEvent(HoverEvent.showText(e.getDescription(player)));
-                player.sendMessage(component);
-            }
+            return true;
+        }
+
+        player.sendMessage(Component.text(""));
+        player.sendMessage(Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
+        displayEntities.sort((a, b) -> Double.compare(a.getLocation().distanceSquared(playerLoc), b.getLocation().distanceSquared(playerLoc)));
+        for (DisplayEntityData e : displayEntities) {
+            Component component = e.getShortDescription();
+            component = component.clickEvent(ClickEvent.runCommand("/displayentity select " + e.getUUID()));
+            component = component.hoverEvent(HoverEvent.showText(e.getDescription(player)));
+            player.sendMessage(component);
         }
         return true;
     }
