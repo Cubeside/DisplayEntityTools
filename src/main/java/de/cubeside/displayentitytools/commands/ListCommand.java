@@ -84,16 +84,33 @@ public class ListCommand extends SubCommand {
 
         double angle = 360;
         if (args.hasNext()) {
-            String as = args.getNext("");
-            try {
-                angle = Double.parseDouble(as);
-            } catch (NumberFormatException e) {
-                sender.sendMessage(Component.text("Ungültiger Winkel (0...180): " + as).color(NamedTextColor.RED));
-                return true;
-            }
-            if (angle < 0 || angle > 180) {
-                sender.sendMessage(Component.text("Ungültiger Winkel (0...180): " + angle).color(NamedTextColor.RED));
-                return true;
+            String as = args.seeNext("");
+
+            switch (as) {
+                case "vorn":
+                case "front":
+                    angle = 180;
+                    args.getNext("");
+                    break;
+
+                case "cursor":
+                    angle = 10;
+                    args.getNext("");
+                    break;
+
+                default:
+                    try {
+                        angle = Double.parseDouble(as);
+                        args.getNext("");
+                    } catch (NumberFormatException e) {
+                        // can't recognize this as an angle => ignore it
+                        break;
+                    }
+                    if (angle < 0 || angle > 360) {
+                        sender.sendMessage(Component.text("Ungültiger Winkel (0...360): " + angle).color(NamedTextColor.RED));
+                        return true;
+                    }
+                    break;
             }
         }
 
@@ -126,13 +143,8 @@ public class ListCommand extends SubCommand {
                     final Vector playerLookVector = playerLoc.getDirection();
                     final Vector entityDirectionVector = entity.getLocation().toVector().subtract(playerLoc.toVector()).normalize();
                     final double dotProduct = playerLookVector.dot(entityDirectionVector);
-                    if (dotProduct < 0) {
-                        // Entity is behind the player
-                        continue;
-                    }
-
                     final double angleToEntity = Math.toDegrees(Math.acos(dotProduct));
-                    if (angleToEntity > angle) {
+                    if (angleToEntity * 2 > angle) {
                         // Entity is outside the cone
                         continue;
                     }
