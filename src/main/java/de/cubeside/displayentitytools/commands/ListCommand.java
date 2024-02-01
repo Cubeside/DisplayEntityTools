@@ -188,12 +188,13 @@ public class ListCommand extends SubCommand {
         } else if (args.remaining() == 3) {
             ArrayList<String> list = plugin.getServer().getOnlinePlayers().stream().map(e -> e.getName()).collect(Collectors.toCollection(ArrayList::new));
             list.add("*");
-            list.add("FRONT");
-            list.add("CURSOR");
+            list.add("front");
+            list.add("cursor");
             return list;
         } else if (args.remaining() == 4) {
             ArrayList<String> list = plugin.getServer().getOnlinePlayers().stream().map(e -> e.getName()).collect(Collectors.toCollection(ArrayList::new));
             list.add("*");
+            return list;
         }
         return List.of();
     }
