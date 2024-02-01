@@ -27,6 +27,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class ListCommand extends SubCommand {
     private DisplayEntityToolsPlugin plugin;
@@ -42,15 +43,17 @@ public class ListCommand extends SubCommand {
 
     @Override
     public String getUsage() {
-        return "[text|block|item|*] [radius] [owner|*]";
+        return "[text|block|item|*] [radius] [angle] [owner|*]";
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String commandString, ArgsParser args) throws DisallowsCommandBlockException, RequiresPlayerException, NoPermissionException, IllegalSyntaxException, InternalCommandException {
         Player player = (Player) sender;
-        if (args.remaining() > 3) {
+
+        if (args.remaining() > 4) {
             return false;
         }
+
         DisplayEntityType type = null;
         if (args.hasNext()) {
             String ts = args.getNext("");
@@ -63,6 +66,7 @@ public class ListCommand extends SubCommand {
                 }
             }
         }
+
         int radius = 10;
         if (args.hasNext()) {
             String as = args.getNext("");
@@ -72,11 +76,44 @@ public class ListCommand extends SubCommand {
                 sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + as).color(NamedTextColor.RED));
                 return true;
             }
+            if (radius < 1 || radius > 100) {
+                sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + radius).color(NamedTextColor.RED));
+                return true;
+            }
         }
-        if (radius < 1 || radius > 100) {
-            sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + radius).color(NamedTextColor.RED));
-            return true;
+
+        double angle = 360;
+        if (args.hasNext()) {
+            String as = args.seeNext("");
+
+            switch (as) {
+                case "vorn":
+                case "front":
+                    angle = 180;
+                    args.getNext("");
+                    break;
+
+                case "cursor":
+                    angle = 10;
+                    args.getNext("");
+                    break;
+
+                default:
+                    try {
+                        angle = Double.parseDouble(as);
+                        args.getNext("");
+                    } catch (NumberFormatException e) {
+                        // can't recognize this as an angle => ignore it
+                        break;
+                    }
+                    if (angle < 0 || angle > 360) {
+                        sender.sendMessage(Component.text("Ungültiger Winkel (0...360): " + angle).color(NamedTextColor.RED));
+                        return true;
+                    }
+                    break;
+            }
         }
+
         UUID owner = player.getUniqueId();
         if (args.hasNext()) {
             String ownerString = args.getNext();
@@ -91,35 +128,50 @@ public class ListCommand extends SubCommand {
                 owner = ownerCached.getUniqueId();
             }
         }
+
         Class<? extends Display> clazz = Display.class;
         if (type != null) {
             clazz = type.getEntityClass();
         }
+
         Location playerLoc = player.getLocation();
         ArrayList<DisplayEntityData> displayEntities = new ArrayList<>();
         {
-            ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
+            final ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
             for (Display entity : entities) {
-                displayEntities.add(new DisplayEntityData(plugin, entity));
+                if (angle != 360) {
+                    final Vector playerLookVector = playerLoc.getDirection();
+                    final Vector entityDirectionVector = entity.getLocation().toVector().subtract(playerLoc.toVector()).normalize();
+                    final double dotProduct = playerLookVector.dot(entityDirectionVector);
+                    final double angleToEntity = Math.toDegrees(Math.acos(dotProduct));
+                    if (angleToEntity * 2 > angle) {
+                        // Entity is outside the cone
+                        continue;
+                    }
+                }
+
+                final DisplayEntityData e = new DisplayEntityData(plugin, entity);
+                if (owner != null && !owner.equals(e.getOwner())) {
+                    continue;
+                }
+                displayEntities.add(e);
             }
         }
-        if (owner != null) {
-            UUID finalOwner = owner;
-            displayEntities.removeIf(e -> !finalOwner.equals(e.getOwner()));
-        }
+
         if (displayEntities.isEmpty()) {
             player.sendMessage(Component.text(""));
             player.sendMessage(Component.text("Keine Display-Entites gefunden.").color(NamedTextColor.RED));
-        } else {
-            player.sendMessage(Component.text(""));
-            player.sendMessage(Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
-            displayEntities.sort((a, b) -> Double.compare(a.getLocation().distanceSquared(playerLoc), b.getLocation().distanceSquared(playerLoc)));
-            for (DisplayEntityData e : displayEntities) {
-                Component component = e.getShortDescription();
-                component = component.clickEvent(ClickEvent.runCommand("/displayentity select " + e.getUUID()));
-                component = component.hoverEvent(HoverEvent.showText(e.getDescription(player)));
-                player.sendMessage(component);
-            }
+            return true;
+        }
+
+        player.sendMessage(Component.text(""));
+        player.sendMessage(Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
+        displayEntities.sort((a, b) -> Double.compare(a.getLocation().distanceSquared(playerLoc), b.getLocation().distanceSquared(playerLoc)));
+        for (DisplayEntityData e : displayEntities) {
+            Component component = e.getShortDescription();
+            component = component.clickEvent(ClickEvent.runCommand("/displayentity select " + e.getUUID()));
+            component = component.hoverEvent(HoverEvent.showText(e.getDescription(player)));
+            player.sendMessage(component);
         }
         return true;
     }
