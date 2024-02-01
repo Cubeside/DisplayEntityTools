@@ -82,12 +82,11 @@ public class ListCommand extends SubCommand {
             }
         }
 
-        double angle = 360;
+        int angle = 360;
         if (args.hasNext()) {
-            String as = args.seeNext("");
+            String as = args.seeNext("").toLowerCase();
 
             switch (as) {
-                case "vorn":
                 case "front":
                     angle = 180;
                     args.getNext("");
@@ -99,16 +98,18 @@ public class ListCommand extends SubCommand {
                     break;
 
                 default:
-                    try {
-                        angle = Double.parseDouble(as);
-                        args.getNext("");
-                    } catch (NumberFormatException e) {
-                        // can't recognize this as an angle => ignore it
-                        break;
-                    }
-                    if (angle < 0 || angle > 360) {
-                        sender.sendMessage(Component.text("Ungültiger Winkel (0...360): " + angle).color(NamedTextColor.RED));
-                        return true;
+                    if (as.length() <= 3) {
+                        try {
+                            angle = Integer.parseInt(as);
+                            args.getNext("");
+                        } catch (NumberFormatException e) {
+                            // can't recognize this as an angle => ignore it
+                            break;
+                        }
+                        if (angle < 0 || angle > 360) {
+                            sender.sendMessage(Component.text("Ungültiger Winkel (0...360): " + angle).color(NamedTextColor.RED));
+                            return true;
+                        }
                     }
                     break;
             }
@@ -187,7 +188,12 @@ public class ListCommand extends SubCommand {
         } else if (args.remaining() == 3) {
             ArrayList<String> list = plugin.getServer().getOnlinePlayers().stream().map(e -> e.getName()).collect(Collectors.toCollection(ArrayList::new));
             list.add("*");
+            list.add("FRONT");
+            list.add("CURSOR");
             return list;
+        } else if (args.remaining() == 4) {
+            ArrayList<String> list = plugin.getServer().getOnlinePlayers().stream().map(e -> e.getName()).collect(Collectors.toCollection(ArrayList::new));
+            list.add("*");
         }
         return List.of();
     }
