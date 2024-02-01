@@ -136,13 +136,14 @@ public class ListCommand extends SubCommand {
         }
 
         Location playerLoc = player.getLocation();
+        Location eyeLocation = player.getEyeLocation();
         ArrayList<DisplayEntityData> displayEntities = new ArrayList<>();
         {
             final ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
             for (Display entity : entities) {
                 if (angle != 360) {
                     final Vector playerLookVector = playerLoc.getDirection();
-                    final Vector entityDirectionVector = entity.getLocation().toVector().subtract(playerLoc.toVector()).normalize();
+                    final Vector entityDirectionVector = entity.getLocation().toVector().subtract(eyeLocation.toVector()).normalize();
                     final double dotProduct = playerLookVector.dot(entityDirectionVector);
                     final double angleToEntity = Math.toDegrees(Math.acos(dotProduct));
                     if (angleToEntity * 2 > angle) {
