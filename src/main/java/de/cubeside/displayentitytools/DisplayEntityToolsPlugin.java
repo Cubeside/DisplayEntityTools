@@ -60,6 +60,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
     private PlayerUUIDCache playerUUIDCache;
 
     private HashMap<UUID, UUID> currentEditingDisplayEntity = new HashMap<>();
+    private boolean ignoreDisplayEntityOwner;
 
     public DisplayEntityToolsPlugin() {
 
@@ -88,6 +89,9 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         if (getServer().getPluginManager().getPlugin("ChestShop") != null) {
             this.getServer().getPluginManager().registerEvents(new ChestShopListener(this), this);
         }
+
+        saveDefaultConfig();
+        ignoreDisplayEntityOwner = getConfig().getBoolean("ignoreDisplayEntityOwner");
     }
 
     private void configureCommands() {
@@ -224,10 +228,16 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         return nmsUtils;
     }
 
+    public boolean isIgnoreDisplayEntityOwner() {
+        return ignoreDisplayEntityOwner;
+    }
+
     public boolean canEdit(Player player, DisplayEntityData displayEntity) {
-        if (!player.getUniqueId().equals(displayEntity.getOwner())
-                && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_EDIT_ALL)) {
-            return false;
+        if (!ignoreDisplayEntityOwner) {
+            if (!player.getUniqueId().equals(displayEntity.getOwner())
+                    && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_EDIT_ALL)) {
+                return false;
+            }
         }
         if (worldGuardHelper != null && !worldGuardHelper.canBuild(player, displayEntity.getLocation())) {
             return false;

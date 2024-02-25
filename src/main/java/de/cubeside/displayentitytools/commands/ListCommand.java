@@ -115,11 +115,13 @@ public class ListCommand extends SubCommand {
             }
         }
 
-        UUID owner = player.getUniqueId();
+        UUID owner = plugin.isIgnoreDisplayEntityOwner() ? null : player.getUniqueId();
+        boolean explicitAll = false;
         if (args.hasNext()) {
             String ownerString = args.getNext();
             if (ownerString.equals("*")) {
                 owner = null;
+                explicitAll = true;
             } else {
                 CachedPlayer ownerCached = plugin.getPlayerUUIDCache().getPlayerFromNameOrUUID(ownerString);
                 if (ownerCached == null) {
@@ -155,6 +157,11 @@ public class ListCommand extends SubCommand {
                 final DisplayEntityData e = new DisplayEntityData(plugin, entity);
                 if (owner != null && !owner.equals(e.getOwner())) {
                     continue;
+                }
+                if (!explicitAll && plugin.isIgnoreDisplayEntityOwner() && owner == null) {
+                    if (!plugin.canEdit(player, e)) {
+                        continue;
+                    }
                 }
                 displayEntities.add(e);
             }
