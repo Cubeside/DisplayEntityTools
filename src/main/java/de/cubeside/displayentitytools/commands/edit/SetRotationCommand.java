@@ -24,12 +24,12 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public String getUsage() {
-        return "[alpha]";
+        return "[alpha] [pitch]";
     }
 
     @Override
     public boolean onEditDisplayEntityCommand(Player player, DisplayEntityData displayEntity, Command command, String alias, String commandString, ArgsParser args) {
-        if (args.remaining() != 1) {
+        if (args.remaining() != 1 && args.remaining() != 2) {
             return false;
         }
         Location displayLoc = displayEntity.getLocation();
@@ -52,8 +52,32 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
             }
         }
 
+        double pitch = Double.NaN;
+        if (args.hasNext()) {
+            String str = args.getNext();
+            boolean rel = false;
+            if (str.startsWith("~")) {
+                rel = true;
+                str = str.substring(1);
+            }
+            try {
+                pitch = str.isEmpty() ? 0 : Double.parseDouble(str);
+            } catch (NumberFormatException e) {
+                player.sendMessage(Component.text("Invalid value for pitch: " + str).color(NamedTextColor.RED));
+                return true;
+            }
+            if (rel) {
+                pitch += displayLoc.getPitch();
+            }
+            pitch = Math.min(pitch, 90);
+            pitch = Math.max(pitch, -90);
+        }
+
         Location newDisplayLoc = displayLoc.clone();
         newDisplayLoc.setYaw((float) alpha);
+        if (!Double.isNaN(pitch)) {
+            newDisplayLoc.setPitch((float) pitch);
+        }
         if (newDisplayLoc.distanceSquared(player.getLocation()) > 100 * 100) {
             player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
             return true;
@@ -62,7 +86,8 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
 
         String name = getNameAndOwner(player, displayEntity);
         String falpha = format.format(alpha);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun die Rotation " + falpha + ".").color(NamedTextColor.GREEN));
+        String fpitch = Double.isNaN(pitch) ? "" : format.format(pitch);
+        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun die Rotation " + falpha + (Double.isNaN(pitch) ? "" : (" und den Pitch " + fpitch)) + ".").color(NamedTextColor.GREEN));
         return true;
     }
 
@@ -70,6 +95,9 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
         if (args.remaining() == 1) {
             return List.of("~", format.format(displayEntity.getLocation().getYaw()));
+        }
+        if (args.remaining() == 2) {
+            return List.of("~", format.format(displayEntity.getLocation().getPitch()));
         }
         return List.of();
     }
