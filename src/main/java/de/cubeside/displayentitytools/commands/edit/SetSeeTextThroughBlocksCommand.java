@@ -32,7 +32,10 @@ public class SetSeeTextThroughBlocksCommand extends AbstractEditDisplayEntityCom
         if (args.remaining() != 1) {
             return false;
         }
-        boolean seeThrough = args.getNext(false);
+        Boolean seeThrough = args.getNext(false);
+        if (seeThrough == null) {
+            return false;
+        }
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
             player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));

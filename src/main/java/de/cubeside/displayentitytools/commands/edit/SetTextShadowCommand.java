@@ -32,7 +32,10 @@ public class SetTextShadowCommand extends AbstractEditDisplayEntityCommand {
         if (args.remaining() != 1) {
             return false;
         }
-        boolean shadow = args.getNext(false);
+        Boolean shadow = args.getNext(false);
+        if (shadow == null) {
+            return false;
+        }
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
             player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
