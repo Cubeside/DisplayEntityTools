@@ -7,6 +7,7 @@ import de.cubeside.displayentitytools.commands.SelectCommand;
 import de.cubeside.displayentitytools.commands.edit.AddOrRemoveOwnerCommand;
 import de.cubeside.displayentitytools.commands.edit.DeleteTextLineCommand;
 import de.cubeside.displayentitytools.commands.edit.GetNbtCommand;
+import de.cubeside.displayentitytools.commands.edit.InfoCommand;
 import de.cubeside.displayentitytools.commands.edit.RemoveCommand;
 import de.cubeside.displayentitytools.commands.edit.SetBillboardModeCommand;
 import de.cubeside.displayentitytools.commands.edit.SetBlockCommand;
@@ -101,6 +102,8 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new GetItemCommand(this), "getitem");
         displayentityCommands.addCommandMapping(new ListCommand(this), "list");
         displayentityCommands.addCommandMapping(new SelectCommand(this), "select");
+
+        displayentityCommands.addCommandMapping(new InfoCommand(this), "info");
 
         displayentityCommands.addCommandMapping(new AddOrRemoveOwnerCommand(this, true), "addowner");
         displayentityCommands.addCommandMapping(new AddOrRemoveOwnerCommand(this, false), "removeowner");
