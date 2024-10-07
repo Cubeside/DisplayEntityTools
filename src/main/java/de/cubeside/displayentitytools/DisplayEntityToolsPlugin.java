@@ -4,6 +4,7 @@ import de.cubeside.displayentitytools.chestshop.ChestShopListener;
 import de.cubeside.displayentitytools.commands.GetItemCommand;
 import de.cubeside.displayentitytools.commands.ListCommand;
 import de.cubeside.displayentitytools.commands.SelectCommand;
+import de.cubeside.displayentitytools.commands.edit.AddOrRemoveOwnerCommand;
 import de.cubeside.displayentitytools.commands.edit.DeleteTextLineCommand;
 import de.cubeside.displayentitytools.commands.edit.GetNbtCommand;
 import de.cubeside.displayentitytools.commands.edit.RemoveCommand;
@@ -100,6 +101,9 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new GetItemCommand(this), "getitem");
         displayentityCommands.addCommandMapping(new ListCommand(this), "list");
         displayentityCommands.addCommandMapping(new SelectCommand(this), "select");
+
+        displayentityCommands.addCommandMapping(new AddOrRemoveOwnerCommand(this, true), "addowner");
+        displayentityCommands.addCommandMapping(new AddOrRemoveOwnerCommand(this, false), "removeowner");
 
         displayentityCommands.addCommandMapping(new RemoveCommand(this), "remove");
         displayentityCommands.addCommandMapping(new SetNameCommand(this), "setname");
@@ -236,7 +240,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
 
     public boolean canEdit(Player player, DisplayEntityData displayEntity) {
         if (!ignoreDisplayEntityOwner) {
-            if (!player.getUniqueId().equals(displayEntity.getOwner())
+            if (!displayEntity.getOwner().contains(player.getUniqueId())
                     && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_EDIT_ALL)) {
                 return false;
             }

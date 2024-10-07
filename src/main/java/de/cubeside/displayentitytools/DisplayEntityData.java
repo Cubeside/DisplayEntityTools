@@ -3,6 +3,10 @@ package de.cubeside.displayentitytools;
 import de.cubeside.displayentitytools.commands.edit.AbstractEditDisplayEntityCommand;
 import de.iani.cubesideutils.StringUtil;
 import de.iani.playerUUIDCache.CachedPlayer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
@@ -24,7 +28,7 @@ public class DisplayEntityData {
     private final DisplayEntityToolsPlugin plugin;
     private final Display display;
     private final DisplayEntityType type;
-    private UUID owner;
+    private Set<UUID> owner = Set.of();
     private String name;
     private Location location;
 
@@ -43,27 +47,56 @@ public class DisplayEntityData {
             plugin.getLogger().log(Level.SEVERE, "Could not load Display data", e1);
             return;
         }
-        String ownerId = conf.getString("owner");
-        if (ownerId != null) {
-            try {
-                owner = UUID.fromString(ownerId);
-            } catch (IllegalArgumentException e1) {
-                plugin.getLogger().log(Level.SEVERE, "owner is not a uuid: " + ownerId, e1);
+        if (conf.isList("owner")) {
+            HashSet<UUID> owners = new HashSet<>();
+            for (String ownerId : conf.getStringList("owner")) {
+                try {
+                    owners.add(UUID.fromString(ownerId));
+                } catch (IllegalArgumentException e1) {
+                    plugin.getLogger().log(Level.SEVERE, "owner is not a uuid: " + ownerId, e1);
+                }
             }
+            if (owners.isEmpty()) {
+                owner = Set.of();
+            } else if (owners.size() == 1) {
+                owner = Set.of(owners.iterator().next());
+            } else {
+                owner = Collections.unmodifiableSet(owners);
+            }
+        } else {
+            String ownerId = conf.getString("owner");
+            if (ownerId != null) {
+                try {
+                    owner = Set.of(UUID.fromString(ownerId));
+                } catch (IllegalArgumentException e1) {
+                    plugin.getLogger().log(Level.SEVERE, "owner is not a uuid: " + ownerId, e1);
+                }
+            }
+        }
+        if (owner == null) {
+            owner = Set.of();
         }
         name = conf.getString("name");
     }
 
     private void saveToEntity() {
         YamlConfiguration conf = new YamlConfiguration();
-        if (owner != null) {
-            conf.set("owner", owner.toString());
+        if (owner != null && !owner.isEmpty()) {
+            if (owner.size() == 1) {
+                conf.set("owner", owner.iterator().next().toString());
+            } else {
+                ArrayList<String> ownerList = new ArrayList<>();
+                for (UUID o : owner) {
+                    ownerList.add(o.toString());
+                }
+                conf.set("owner", ownerList);
+            }
         }
         conf.set("name", name);
         display.getPersistentDataContainer().set(plugin.getDataNamespacedKey(), PersistentDataType.STRING, conf.saveToString());
     }
 
-    public UUID getOwner() {
+    public Set<UUID> getOwner() {
         return owner;
     }
 
@@ -109,9 +142,18 @@ public class DisplayEntityData {
     public Component getDescription(Player player) {
         String name = AbstractEditDisplayEntityCommand.getNameAndOwner(plugin, player, this);
         Component descr = Component.text("Display-Entity " + name).color(NamedTextColor.WHITE);
-        if (owner != null) {
-            CachedPlayer ownerPlayer = plugin.getPlayerUUIDCache().getPlayer(owner);
-            descr = descr.appendNewline().append(Component.text("Besitzer: ").append(Component.text(ownerPlayer != null ? ownerPlayer.getName() : owner.toString()).color(NamedTextColor.AQUA)));
+        if (owner != null && !owner.isEmpty()) {
+            Component ownerLine = Component.text("Besitzer: ");
+            boolean first = true;
+            for (UUID ownerId : owner) {
+                CachedPlayer ownerPlayer = plugin.getPlayerUUIDCache().getPlayer(ownerId);
+                if (!first) {
+                    ownerLine = ownerLine.append(Component.text(", "));
+                }
+                first = false;
+                ownerLine = ownerLine.append(Component.text(ownerPlayer != null ? ownerPlayer.getName() : ownerId.toString()).color(NamedTextColor.AQUA));
+            }
+            descr = descr.appendNewline().append(ownerLine);
         }
         descr = descr.appendNewline().append(Component.text("Typ: ").append(Component.text(StringUtil.capitalizeFirstLetter(type.name(), true)).color(NamedTextColor.AQUA)));
         return descr;
@@ -136,5 +178,33 @@ public class DisplayEntityData {
 
     public Display getEntity() {
         return display;
+    }
+
+    public void addOwners(Set<UUID> uuids) {
+        HashSet<UUID> newOwner = new HashSet<>();
+        newOwner.addAll(owner);
+        newOwner.addAll(uuids);
+        if (newOwner.isEmpty()) {
+            owner = Set.of();
+        } else if (newOwner.size() == 1) {
+            owner = Set.of(newOwner.iterator().next());
+        } else {
+            owner = Collections.unmodifiableSet(newOwner);
+        }
+        saveToEntity();
+    }
+
+    public void removeOwners(HashSet<UUID> uuids) {
+        HashSet<UUID> newOwner = new HashSet<>();
+        newOwner.addAll(owner);
+        newOwner.removeAll(uuids);
+        if (newOwner.isEmpty()) {
+            owner = Set.of();
+        } else if (newOwner.size() == 1) {
+            owner = Set.of(newOwner.iterator().next());
+        } else {
+            owner = Collections.unmodifiableSet(newOwner);
+        }
+        saveToEntity();
     }
 }

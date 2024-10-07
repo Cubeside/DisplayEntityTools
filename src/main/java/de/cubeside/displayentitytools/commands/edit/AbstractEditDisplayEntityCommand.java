@@ -120,15 +120,29 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
     }
 
     public static String getNameAndOwner(DisplayEntityToolsPlugin plugin, Player player, DisplayEntityData displayEntity) {
-        String name = displayEntity.getName() == null ? "" : "'" + displayEntity.getName() + "' ";
-        String owner = "";
-        if (displayEntity.getOwner() != null && !player.getUniqueId().equals(displayEntity.getOwner())) {
-            CachedPlayer cp = plugin.getPlayerUUIDCache().getPlayer(displayEntity.getOwner());
-            if (cp != null) {
-                owner = "von " + cp.getName() + " ";
+        StringBuilder name = new StringBuilder();
+        if (displayEntity.getName() != null) {
+            name.append("'").append(displayEntity.getName()).append("' ");
+        }
+        if (!displayEntity.getOwner().isEmpty() && !displayEntity.getOwner().contains(player.getUniqueId())) {
+            boolean first = true;
+            for (UUID ownerId : displayEntity.getOwner()) {
+                CachedPlayer cp = plugin.getPlayerUUIDCache().getPlayer(ownerId);
+                if (cp != null) {
+                    if (first) {
+                        name.append("von ");
+                    } else {
+                        name.append(", ");
+                    }
+                    name.append(cp.getName());
+                    first = false;
+                }
+            }
+            if (!first) {
+                name.append(" ");
             }
         }
-        return name + owner;
+        return name.toString();
     }
 
     public String getNameAndOwner(Player player, DisplayEntityData displayEntity) {

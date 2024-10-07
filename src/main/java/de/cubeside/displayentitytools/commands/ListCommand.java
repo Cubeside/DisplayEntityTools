@@ -155,7 +155,7 @@ public class ListCommand extends SubCommand {
                 }
 
                 final DisplayEntityData e = new DisplayEntityData(plugin, entity);
-                if (owner != null && !owner.equals(e.getOwner())) {
+                if (owner != null && !e.getOwner().contains(owner)) {
                     continue;
                 }
                 if (!explicitAll && plugin.isIgnoreDisplayEntityOwner() && owner == null) {
