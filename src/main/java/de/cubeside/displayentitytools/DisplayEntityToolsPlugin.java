@@ -128,6 +128,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new SetTextCommand(this, SetTextCommand.Mode.ADDLINE), "text", "addline");
         displayentityCommands.addCommandMapping(new SetTextLineCommand(this, SetTextLineCommand.Mode.SET), "text", "setline");
         displayentityCommands.addCommandMapping(new SetTextLineCommand(this, SetTextLineCommand.Mode.INSERT), "text", "insertline");
+        displayentityCommands.addCommandMapping(new SetTextLineCommand(this, SetTextLineCommand.Mode.ADDTOLINE), "text", "addtoline");
         displayentityCommands.addCommandMapping(new DeleteTextLineCommand(this), "text", "deleteline");
         displayentityCommands.addCommandMapping(new SetTextAlignCommand(this), "settextalign");
         displayentityCommands.addCommandMapping(new SetSeeTextThroughBlocksCommand(this), "setseetextthroughblocks");

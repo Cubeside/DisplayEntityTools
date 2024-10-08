@@ -18,7 +18,8 @@ import org.bukkit.entity.TextDisplay;
 public class SetTextLineCommand extends AbstractEditDisplayEntityCommand {
     public enum Mode {
         SET,
-        INSERT
+        INSERT,
+        ADDTOLINE
     }
 
     private Mode mode;
@@ -49,19 +50,21 @@ public class SetTextLineCommand extends AbstractEditDisplayEntityCommand {
 
         Component textComp = ((TextDisplay) displayEntity.getEntity()).text();
         String oldStr = LegacyComponentSerializer.legacySection().serialize(textComp);
-        ArrayList<String> lines = new ArrayList<>(List.of(oldStr.split("\n")));
+        ArrayList<String> lines = new ArrayList<>(List.of(oldStr.split("\n", -1)));
 
         int lineMax = Math.max(lines.size() + 3, 10);
         if (lineNumber < 0 || lineNumber >= lineMax) {
             Messages.sendError(player, "Ungültige Zeilennummer! (1 bis " + lineMax + ")");
             return true;
         }
-        while (lines.size() < lineNumber + (mode == Mode.SET ? 1 : 0)) {
+        while (lines.size() < lineNumber + (mode != Mode.INSERT ? 1 : 0)) {
             lines.add("");
         }
         if (mode == Mode.SET) {
             lines.set(lineNumber, addstr);
-        } else {
+        } else if (mode == Mode.ADDTOLINE) {
+            lines.set(lineNumber, lines.get(lineNumber) + addstr);
+        } else { // insert
             lines.add(lineNumber, addstr);
         }
 
@@ -87,7 +90,7 @@ public class SetTextLineCommand extends AbstractEditDisplayEntityCommand {
         if (args.remaining() == 1) {
             Component textComp = ((TextDisplay) displayEntity.getEntity()).text();
             String oldStr = LegacyComponentSerializer.legacySection().serialize(textComp);
-            int oldLength = oldStr.split("\n").length;
+            int oldLength = oldStr.split("\n", -1).length;
             int lineMax = Math.max(oldLength + 3, 10) + 1;
             ArrayList<String> result = new ArrayList<>();
             for (int i = 1; i < lineMax; i++) {

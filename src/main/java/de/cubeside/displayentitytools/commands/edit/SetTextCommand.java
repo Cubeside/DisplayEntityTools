@@ -44,16 +44,14 @@ public class SetTextCommand extends AbstractEditDisplayEntityCommand {
             return false;
         }
         String text = args.getAll("");
-        String str = StringUtilCore.convertColors(text);
+        String str = StringUtilCore.convertColors(text).replace("|", "\n");
         if (mode == Mode.ADD || mode == Mode.ADDLINE) {
             Component textComp = ((TextDisplay) displayEntity.getEntity()).text();
             String oldStr = textComp == null ? null : LegacyComponentSerializer.legacySection().serialize(textComp);
             if (oldStr != null && !oldStr.isBlank()) {
                 if (mode == Mode.ADDLINE) {
                     str = oldStr + "\n" + str;
-                } else if (mode == Mode.SET) {
-                    str = oldStr + str.replace("|", "\n");
-                } else {
+                } else { // add
                     str = oldStr + str;
                 }
             }

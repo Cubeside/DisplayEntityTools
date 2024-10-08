@@ -38,7 +38,7 @@ public class DeleteTextLineCommand extends AbstractEditDisplayEntityCommand {
 
         Component textComp = ((TextDisplay) displayEntity.getEntity()).text();
         String oldStr = LegacyComponentSerializer.legacySection().serialize(textComp);
-        ArrayList<String> lines = new ArrayList<>(List.of(oldStr.split("\n")));
+        ArrayList<String> lines = new ArrayList<>(List.of(oldStr.split("\n", -1)));
 
         int lineMax = lines.size();
         if (lineNumber < 0 || lineNumber >= lineMax) {
@@ -73,7 +73,7 @@ public class DeleteTextLineCommand extends AbstractEditDisplayEntityCommand {
         if (args.remaining() == 1) {
             Component textComp = ((TextDisplay) displayEntity.getEntity()).text();
             String oldStr = LegacyComponentSerializer.legacySection().serialize(textComp);
-            int oldLength = oldStr.split("\n").length;
+            int oldLength = oldStr.split("\n", -1).length;
             ArrayList<String> result = new ArrayList<>();
             for (int i = 1; i <= oldLength; i++) {
                 result.add(Integer.toString(i));
