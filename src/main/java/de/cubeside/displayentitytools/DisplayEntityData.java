@@ -173,7 +173,7 @@ public class DisplayEntityData {
     }
 
     public Component getColoredName() {
-        return getName(TextColor.fromHexString("#60ff60"));
+        return getName(TextColor.fromCSSHexString("#60ff60"));
     }
 
     public Component getNameAndOwner(Player player) {
