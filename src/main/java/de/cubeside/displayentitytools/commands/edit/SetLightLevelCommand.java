@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Display.Brightness;
 import org.bukkit.entity.Player;
@@ -45,14 +45,14 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
                 } catch (NumberFormatException e) {
                 }
                 if (blocklight < 0 || blocklight > 15) {
-                    player.sendMessage(Component.text("Invalid value for block light (0..15): " + str).color(NamedTextColor.RED));
+                    Messages.sendError(player, "Invalid value for block light (0..15): " + str);
                     return true;
                 }
             }
         }
         if (args.hasNext()) {
             if (lightAuto) {
-                player.sendMessage(Component.text("Automatic light level is always for both components").color(NamedTextColor.RED));
+                Messages.sendError(player, "Automatic light level is always for both components");
                 return true;
             }
             String str = args.getNext();
@@ -61,24 +61,20 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
             } catch (NumberFormatException e) {
             }
             if (sunlight < 0 || sunlight > 15) {
-                player.sendMessage(Component.text("Invalid value for sun light (0..15): " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for sun light (0..15): " + str);
                 return true;
             }
         } else {
             sunlight = blocklight;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         displayEntity.getEntity().setBrightness(lightAuto ? null : new Brightness(blocklight, sunlight));
 
-        String name = getNameAndOwner(player, displayEntity);
+        Component name = displayEntity.getNameAndOwner(player);
         if (lightAuto) {
-            player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun automatische Lichtlevel.").color(NamedTextColor.GREEN));
+            Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun automatische Lichtlevel.")));
         } else {
-            player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun die Lichtlevel Blocklicht " + blocklight + " und Sonnenlight " + sunlight + ".").color(NamedTextColor.GREEN));
+            Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Lichtlevel Blocklicht " + blocklight + " und Sonnenlight " + sunlight + ".")));
         }
         return true;
     }

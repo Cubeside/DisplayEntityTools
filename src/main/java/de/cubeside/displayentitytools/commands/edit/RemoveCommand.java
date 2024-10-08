@@ -3,12 +3,12 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.bukkit.items.ItemStacks;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -36,14 +36,14 @@ public class RemoveCommand extends AbstractEditDisplayEntityCommand {
         if (added || player.getGameMode() == GameMode.CREATIVE) {
             displayEntity.getEntity().remove();
             plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), null);
-            String name = getNameAndOwner(player, displayEntity);
+            Component name = displayEntity.getNameAndOwner(player);
             if (added) {
-                player.sendMessage(Component.text("Das Display-Entity " + name + "wurde entfernt und befindet sich wieder in deinem Inventar.").color(NamedTextColor.GREEN));
+                Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("wurde entfernt und befindet sich wieder in deinem Inventar.")));
             } else {
-                player.sendMessage(Component.text("Das Display-Entity " + name + "wurde entfernt.").color(NamedTextColor.GREEN));
+                Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("wurde entfernt.")));
             }
         } else {
-            player.sendMessage(Component.text("Du hast keinen Platz im Inventar frei.").color(NamedTextColor.RED));
+            Messages.sendError(player, "Du hast keinen Platz im Inventar frei.");
         }
         return true;
     }

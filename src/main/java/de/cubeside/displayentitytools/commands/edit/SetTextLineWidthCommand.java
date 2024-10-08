@@ -4,11 +4,11 @@ import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPermissions;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
@@ -39,19 +39,15 @@ public class SetTextLineWidthCommand extends AbstractEditDisplayEntityCommand {
             lineWidth = Integer.parseInt(alphaString);
         } catch (NumberFormatException e) {
         }
-        if (lineWidth < 1 || (lineWidth > 1000 && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES))) {
-            player.sendMessage(Component.text("Ungültiger Zeilenbreite-Wert (1...1000): " + alphaString).color(NamedTextColor.RED));
+        if (lineWidth < 1 || (lineWidth > 5000 && !player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES))) {
+            Messages.sendError(player, "Ungültiger Zeilenbreite-Wert (1...5000): " + alphaString);
             return true;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         ((TextDisplay) displayEntity.getEntity()).setLineWidth(lineWidth);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Der Text des Display-Entities " + name + "hat nun eine Zeilenbreite von " + lineWidth + " Pixeln.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Der Text des Display-Entities ").append(name).append(Component.text("hat nun eine Zeilenbreite von " + lineWidth + " Pixeln.")));
         return true;
     }
 

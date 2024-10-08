@@ -3,6 +3,7 @@ package de.cubeside.displayentitytools.commands;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.bukkit.commands.SubCommand;
 import de.iani.cubesideutils.bukkit.commands.exceptions.DisallowsCommandBlockException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.IllegalSyntaxException;
@@ -61,7 +62,7 @@ public class ListCommand extends SubCommand {
                 try {
                     type = DisplayEntityType.valueOf(ts.toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(Component.text("Ungültiger Typ: " + ts).color(NamedTextColor.RED));
+                    Messages.sendError(sender, "Ungültiger Typ: " + ts);
                     return true;
                 }
             }
@@ -73,11 +74,11 @@ public class ListCommand extends SubCommand {
             try {
                 radius = Integer.parseInt(as);
             } catch (NumberFormatException e) {
-                sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + as).color(NamedTextColor.RED));
+                Messages.sendError(sender, "Ungültiger Radius (1...100): " + as);
                 return true;
             }
             if (radius < 1 || radius > 100) {
-                sender.sendMessage(Component.text("Ungültiger Radius (1...100): " + radius).color(NamedTextColor.RED));
+                Messages.sendError(sender, "Ungültiger Radius (1...100): " + radius);
                 return true;
             }
         }
@@ -107,7 +108,7 @@ public class ListCommand extends SubCommand {
                             break;
                         }
                         if (angle < 0 || angle > 360) {
-                            sender.sendMessage(Component.text("Ungültiger Winkel (0...360): " + angle).color(NamedTextColor.RED));
+                            Messages.sendError(sender, "Ungültiger Winkel (0...360): " + angle);
                             return true;
                         }
                     }
@@ -125,7 +126,7 @@ public class ListCommand extends SubCommand {
             } else {
                 CachedPlayer ownerCached = plugin.getPlayerUUIDCache().getPlayerFromNameOrUUID(ownerString);
                 if (ownerCached == null) {
-                    sender.sendMessage(Component.text("Spieler nicht gefunden: " + ownerString).color(NamedTextColor.RED));
+                    Messages.sendError(sender, "Spieler nicht gefunden: " + ownerString);
                     return true;
                 }
                 owner = ownerCached.getUniqueId();
@@ -169,12 +170,12 @@ public class ListCommand extends SubCommand {
 
         if (displayEntities.isEmpty()) {
             player.sendMessage(Component.text(""));
-            player.sendMessage(Component.text("Keine Display-Entites gefunden.").color(NamedTextColor.RED));
+            Messages.sendError(sender, "Keine Display-Entites gefunden.");
             return true;
         }
 
         player.sendMessage(Component.text(""));
-        player.sendMessage(Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
+        Messages.sendSuccess(sender, Component.text(displayEntities.size() + " Display-Entities gefunden:").color(NamedTextColor.GOLD));
         displayEntities.sort((a, b) -> Double.compare(a.getLocation().distanceSquared(playerLoc), b.getLocation().distanceSquared(playerLoc)));
         for (DisplayEntityData e : displayEntities) {
             Component component = e.getShortDescription();

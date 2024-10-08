@@ -1,6 +1,5 @@
 package de.cubeside.displayentitytools;
 
-import de.cubeside.displayentitytools.commands.edit.AbstractEditDisplayEntityCommand;
 import de.iani.cubesideutils.StringUtil;
 import de.iani.playerUUIDCache.CachedPlayer;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -140,8 +140,8 @@ public class DisplayEntityData {
     }
 
     public Component getDescription(Player player) {
-        String name = AbstractEditDisplayEntityCommand.getNameAndOwner(plugin, player, this);
-        Component descr = Component.text("Display-Entity " + name).color(NamedTextColor.WHITE);
+        Component name = getName(NamedTextColor.AQUA);
+        Component descr = Component.text("Display-Entity ", NamedTextColor.WHITE).append(name);
         if (owner != null && !owner.isEmpty()) {
             Component ownerLine = Component.text("Besitzer: ");
             boolean first = true;
@@ -157,6 +157,45 @@ public class DisplayEntityData {
         }
         descr = descr.appendNewline().append(Component.text("Typ: ").append(Component.text(StringUtil.capitalizeFirstLetter(type.name(), true)).color(NamedTextColor.AQUA)));
         return descr;
+    }
+
+    public Component getName(TextColor color) {
+        Component name = Component.empty();
+        if (getName() != null) {
+            name = name.append(Component.text("'")).append(Component.text(getName(), color)).append(Component.text("' "));
+        }
+        return name;
+
+    }
+
+    public Component getNameAndOwner() {
+        return getNameAndOwner(null);
+    }
+
+    public Component getColoredName() {
+        return getName(TextColor.fromHexString("#60ff60"));
+    }
+
+    public Component getNameAndOwner(Player player) {
+        Component name = getColoredName();
+        if (!getOwner().isEmpty() && (player == null || !getOwner().contains(player.getUniqueId()))) {
+            name = name.append(Component.text("von ").append(getColoredOwners())).append(Component.space());
+        }
+        return name;
+    }
+
+    public Component getColoredOwners() {
+        Component name = Component.empty();
+        boolean first = true;
+        for (UUID ownerId : getOwner()) {
+            CachedPlayer cp = plugin.getPlayerUUIDCache().getPlayer(ownerId);
+            if (!first) {
+                name = name.append(Component.text(", "));
+            }
+            name = name.append(Component.text(cp != null ? cp.getName() : ownerId.toString(), NamedTextColor.WHITE));
+            first = false;
+        }
+        return name;
     }
 
     public String getName() {

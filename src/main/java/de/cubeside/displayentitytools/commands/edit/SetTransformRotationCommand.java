@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
@@ -43,7 +43,7 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
             try {
                 x = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for x: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for x: " + str);
                 return true;
             }
         }
@@ -52,7 +52,7 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
             try {
                 y = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for y: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for y: " + str);
                 return true;
             }
         }
@@ -61,7 +61,7 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
             try {
                 z = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for z: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for z: " + str);
                 return true;
             }
         }
@@ -70,7 +70,7 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
             try {
                 alpha = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for alpha: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for alpha: " + str);
                 return true;
             }
         }
@@ -86,11 +86,6 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
             z = 0;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
-
         Transformation transform = displayEntity.getEntity().getTransformation();
         Quaternionf newRotation = new Quaternionf(new AxisAngle4d(alpha * Math.PI / 180.0, x, y, z));
         Transformation newTransform;
@@ -101,8 +96,8 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
         }
         displayEntity.getEntity().setTransformation(newTransform);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Die " + (left ? "linke" : "rechte") + " Rotation der Transformation vom Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Die " + (left ? "linke" : "rechte") + " Rotation der Transformation vom Display-Entity ").append(name).append(Component.text("wurde gesetzt.")));
         return true;
     }
 

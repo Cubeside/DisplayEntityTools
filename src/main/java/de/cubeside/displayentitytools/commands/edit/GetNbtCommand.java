@@ -4,13 +4,13 @@ import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPermissions;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -41,8 +41,8 @@ public class GetNbtCommand extends AbstractEditDisplayEntityCommand {
         }
         String nbt = plugin.getNmsUtils().getNbtUtils().writeString(plugin.getNmsUtils().getEntityUtils().getNbt(displayEntity.getEntity()));
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "hat folgenden NBT-Inhalt (anklicken zum Kopieren):").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat folgenden NBT-Inhalt (anklicken zum Kopieren):")));
         player.sendMessage(Component.text(nbt).clickEvent(ClickEvent.copyToClipboard(nbt)).hoverEvent(HoverEvent.showText(Component.text("Anklicken zum Kopieren"))));
         return true;
     }

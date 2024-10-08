@@ -3,11 +3,12 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -70,14 +71,10 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
             }
         }
         if (color == null && !noGlow) {
-            player.sendMessage(Component.text("Ungültige Farbe: " + colorHex).color(NamedTextColor.RED));
+            Messages.sendError(player, "Ungültige Farbe: " + colorHex);
             return true;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         if (noGlow) {
             displayEntity.getEntity().setGlowing(false);
         } else {
@@ -85,8 +82,13 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
             displayEntity.getEntity().setGlowColorOverride(color);
         }
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "leuchtet nun " + (noGlow ? "nicht" : ("in der Farbe " + toHex(color))) + ".").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        if (noGlow) {
+            Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("leuchtet nun nicht.")));
+        } else {
+            String hexColor = toHex(color);
+            Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("leuchtet nun in der Farbe ")).append(Component.text(hexColor, TextColor.fromCSSHexString(hexColor))).append(Component.text(".")));
+        }
         return true;
     }
 

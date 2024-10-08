@@ -4,11 +4,11 @@ import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPermissions;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
@@ -43,7 +43,7 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
             try {
                 x = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for x: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for x: " + str);
                 return true;
             }
         }
@@ -52,7 +52,7 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
             try {
                 y = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for y: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for y: " + str);
                 return true;
             }
         }
@@ -61,29 +61,24 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
             try {
                 z = Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for z: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for z: " + str);
                 return true;
             }
         }
         if (!player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES)) {
             int sizeLimit = scale ? 20 : 5;
             if (x < -sizeLimit || x > sizeLimit) {
-                player.sendMessage(Component.text("Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen").color(NamedTextColor.RED));
+                Messages.sendError(player, "Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen");
                 return true;
             }
             if (y < -sizeLimit || y > sizeLimit) {
-                player.sendMessage(Component.text("Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen").color(NamedTextColor.RED));
+                Messages.sendError(player, "Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen");
                 return true;
             }
             if (z < -sizeLimit || z > sizeLimit) {
-                player.sendMessage(Component.text("Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen").color(NamedTextColor.RED));
+                Messages.sendError(player, "Die Werte müssen zwischen -" + sizeLimit + " und " + sizeLimit + " liegen");
                 return true;
             }
-        }
-
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
         }
 
         Transformation transform = displayEntity.getEntity().getTransformation();
@@ -96,8 +91,8 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
         }
         displayEntity.getEntity().setTransformation(newTransform);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Die " + (scale ? "Skalierung" : "Translation") + " der Transformation vom Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Die " + (scale ? "Skalierung" : "Translation") + " der Transformation vom Display-Entity ").append(name).append(Component.text("wurde gesetzt.")));
         return true;
     }
 

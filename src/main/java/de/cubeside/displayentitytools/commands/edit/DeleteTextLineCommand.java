@@ -3,12 +3,12 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -42,7 +42,7 @@ public class DeleteTextLineCommand extends AbstractEditDisplayEntityCommand {
 
         int lineMax = lines.size();
         if (lineNumber < 0 || lineNumber >= lineMax) {
-            player.sendMessage(Component.text("Ungültige Zeilennummer! (1 bis " + lineMax + ")").color(NamedTextColor.RED));
+            Messages.sendError(player, "Ungültige Zeilennummer! (1 bis " + lineMax + ")");
             return true;
         }
         lines.remove(lineNumber);
@@ -58,13 +58,13 @@ public class DeleteTextLineCommand extends AbstractEditDisplayEntityCommand {
         Component textComponent = LegacyComponentSerializer.legacySection().deserialize(newStr.toString());
 
         if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
+            Messages.sendError(player, "Du bist zu weit von der Position des Display-Entities entfernt!");
             return true;
         }
         ((TextDisplay) displayEntity.getEntity()).text(textComponent);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Text für das Display-Entity " + name + "wurde bearbeitet.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Text für das Display-Entity ").append(name).append(Component.text("wurde bearbeitet.")));
         return true;
     }
 

@@ -5,12 +5,12 @@ import com.sk89q.worldedit.world.block.BlockType;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -53,14 +53,14 @@ public class SetBlockCommand extends AbstractEditDisplayEntityCommand {
             try {
                 block = Bukkit.createBlockData(args.getNext());
             } catch (IllegalArgumentException e) {
-                player.sendMessage(Component.text("Ungültiger Block!").color(NamedTextColor.RED));
+                Messages.sendError(player, "Ungültiger Block!");
                 return true;
             }
         } else {
             ItemStack stack = player.getInventory().getItemInMainHand();
             if (stack != null) {
                 if (!stack.getType().isBlock()) {
-                    player.sendMessage(Component.text("Ungültiger Block!").color(NamedTextColor.RED));
+                    Messages.sendError(player, "Ungültiger Block!");
                     return true;
                 }
                 block = stack.getType().createBlockData();
@@ -69,18 +69,14 @@ public class SetBlockCommand extends AbstractEditDisplayEntityCommand {
             }
         }
         if (block.getMaterial() == Material.AIR) {
-            player.sendMessage(Component.text("Ungültiger Block!").color(NamedTextColor.RED));
+            Messages.sendError(player, "Ungültiger Block!");
             return true;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         ((BlockDisplay) displayEntity.getEntity()).setBlock(block);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Block für das Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Block für das Display-Entity ").append(name).append(Component.text("wurde gesetzt.")));
         return true;
     }
 

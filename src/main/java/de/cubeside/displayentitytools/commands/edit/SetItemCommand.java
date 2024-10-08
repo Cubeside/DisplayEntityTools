@@ -3,12 +3,12 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.entity.ItemDisplay;
@@ -48,7 +48,7 @@ public class SetItemCommand extends AbstractEditDisplayEntityCommand {
         if (args.remaining() == 1) {
             Material mat = Material.matchMaterial(args.getNext());
             if (mat == null || !mat.isItem()) {
-                player.sendMessage(Component.text("Ungültiges Item!").color(NamedTextColor.RED));
+                Messages.sendError(player, "Ungültiges Item!");
                 return true;
             }
             stack = new ItemStack(mat);
@@ -56,18 +56,14 @@ public class SetItemCommand extends AbstractEditDisplayEntityCommand {
             stack = player.getInventory().getItemInMainHand();
         }
         if (stack.getType() == Material.AIR) {
-            player.sendMessage(Component.text("Ungültiges Item!").color(NamedTextColor.RED));
+            Messages.sendError(player, "Ungültiges Item!");
             return true;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         ((ItemDisplay) displayEntity.getEntity()).setItemStack(stack);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Item für das Display-Entity " + name + "wurde gesetzt.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Item für das Display-Entity ").append(name).append(Component.text("wurde gesetzt.")));
         return true;
     }
 

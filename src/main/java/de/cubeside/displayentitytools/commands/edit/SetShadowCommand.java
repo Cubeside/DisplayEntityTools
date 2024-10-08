@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -40,7 +40,7 @@ public class SetShadowCommand extends AbstractEditDisplayEntityCommand {
             } catch (NumberFormatException e) {
             }
             if (!Float.isFinite(shadowRadius) || shadowRadius < 0 || shadowRadius > 3) {
-                player.sendMessage(Component.text("Invalid value for shadow radius (0..3): " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for shadow radius (0..3): " + str);
                 return true;
             }
         }
@@ -51,20 +51,16 @@ public class SetShadowCommand extends AbstractEditDisplayEntityCommand {
             } catch (NumberFormatException e) {
             }
             if (!Float.isFinite(shadowStrength)) {
-                player.sendMessage(Component.text("Invalid value for shadow strength: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for shadow strength: " + str);
                 return true;
             }
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         displayEntity.getEntity().setShadowRadius(shadowRadius);
         displayEntity.getEntity().setShadowStrength(shadowStrength);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun den Schattenradius " + format.format(shadowRadius) + " mit Stärke " + format.format(shadowStrength) + ".").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun den Schattenradius " + format.format(shadowRadius) + " mit Stärke " + format.format(shadowStrength) + ".")));
         return true;
     }
 

@@ -3,6 +3,7 @@ package de.cubeside.displayentitytools.commands;
 import de.cubeside.displayentitytools.DisplayEntityToolsPermissions;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.bukkit.commands.SubCommand;
 import de.iani.cubesideutils.bukkit.commands.exceptions.DisallowsCommandBlockException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.IllegalSyntaxException;
@@ -15,8 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -55,7 +54,7 @@ public class GetItemCommand extends SubCommand {
             try {
                 type = DisplayEntityType.valueOf(ts.toUpperCase());
             } catch (IllegalArgumentException e) {
-                sender.sendMessage(Component.text("Ungültiger Typ: " + ts).color(NamedTextColor.RED));
+                Messages.sendError(sender, "Ungültiger Typ: " + ts);
                 return true;
             }
         }
@@ -65,19 +64,19 @@ public class GetItemCommand extends SubCommand {
             try {
                 amount = Integer.parseInt(as);
             } catch (NumberFormatException e) {
-                sender.sendMessage(Component.text("Ungültige Anzahl: " + as).color(NamedTextColor.RED));
+                Messages.sendError(sender, "Ungültige Anzahl: " + as);
                 return true;
             }
         }
         if (amount < 1 || amount > 64) {
-            sender.sendMessage(Component.text("Ungültige Anzahl: " + amount).color(NamedTextColor.RED));
+            Messages.sendError(sender, "Ungültige Anzahl: " + amount);
             return true;
         }
         ItemStack stack = ItemStacks.amount(plugin.getSpawnerItem(type), amount);
         if (ItemStacks.addToInventoryIfFits(((Player) sender).getInventory(), stack)) {
-            sender.sendMessage(Component.text(amount + " Display-Entity-Spawnitems erhalten!").color(NamedTextColor.GREEN));
+            Messages.sendSuccess(sender, amount + " Display-Entity-Spawnitems erhalten!");
         } else {
-            sender.sendMessage(Component.text("Du hast nicht genügend Platz im Inventar.").color(NamedTextColor.RED));
+            Messages.sendError(sender, "Du hast nicht genügend Platz im Inventar.");
         }
         return true;
     }

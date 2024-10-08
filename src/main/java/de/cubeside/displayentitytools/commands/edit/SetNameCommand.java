@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -28,14 +28,14 @@ public class SetNameCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public boolean onEditDisplayEntityCommand(Player player, DisplayEntityData displayEntity, Command command, String alias, String commandString, ArgsParser args) {
-        String oldName = getNameAndOwner(player, displayEntity);
+        Component oldName = displayEntity.getNameAndOwner(player);
         String name = args.hasNext() ? args.getAll("") : null;
         displayEntity.setName(name);
 
         if (name == null) {
-            player.sendMessage(Component.text("Der Name des Display-Entities " + oldName + "wurde entfernt!").color(NamedTextColor.GREEN));
+            Messages.sendSuccess(player, Component.text("Der Name des Display-Entities ").append(oldName).append(Component.text("wurde entfernt!")));
         } else {
-            player.sendMessage(Component.text("Der Name des Display-Entities " + oldName + "wurde auf '" + name + "' gesetzt!").color(NamedTextColor.GREEN));
+            Messages.sendSuccess(player, Component.text("Der Name des Display-Entities ").append(oldName).append(Component.text("wurde auf '")).append(displayEntity.getColoredName()).append(Component.text("' gesetzt!")));
         }
         return true;
     }

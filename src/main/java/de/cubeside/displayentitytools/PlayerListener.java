@@ -1,7 +1,7 @@
 package de.cubeside.displayentitytools;
 
+import de.cubeside.displayentitytools.util.Messages;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,7 +52,7 @@ public class PlayerListener implements Listener {
         }
         if (plugin.getWorldGuardHelper() != null) {
             if (!plugin.getWorldGuardHelper().canBuild(event.getPlayer(), spawnLocation)) {
-                event.getPlayer().sendMessage(Component.text("Du hast hier keine Baurechte.").color(NamedTextColor.RED));
+                Messages.sendError(event.getPlayer(), "Du hast hier keine Baurechte.");
                 return;
             }
         }
@@ -78,9 +78,9 @@ public class PlayerListener implements Listener {
             conf.set("owner", event.getPlayer().getUniqueId().toString());
             display.getPersistentDataContainer().set(plugin.getDataNamespacedKey(), PersistentDataType.STRING, conf.saveToString());
             plugin.setCurrentEditingDisplayEntity(event.getPlayer().getUniqueId(), display.getUniqueId());
-            event.getPlayer().sendMessage(Component.text("Das Display-Entity wurde gespawnt und ausgewählt.").color(NamedTextColor.GREEN));
+            Messages.sendSuccess(event.getPlayer(), "Das Display-Entity wurde gespawnt und ausgewählt.");
         } else {
-            event.getPlayer().sendMessage(Component.text("Das Display-Entity konnte nicht gespawnt werden.").color(NamedTextColor.RED));
+            Messages.sendError(event.getPlayer(), "Das Display-Entity konnte nicht gespawnt werden.");
             return;
         }
         if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {

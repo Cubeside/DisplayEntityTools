@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
@@ -37,14 +37,10 @@ public class SetSeeTextThroughBlocksCommand extends AbstractEditDisplayEntityCom
             return false;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         ((TextDisplay) displayEntity.getEntity()).setSeeThrough(seeThrough);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "wird nun " + (seeThrough ? "" : "nicht ") + "durch Blöcke hindurch gesehen.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("wird nun " + (seeThrough ? "" : "nicht ") + "durch Blöcke hindurch gesehen.")));
         return true;
     }
 

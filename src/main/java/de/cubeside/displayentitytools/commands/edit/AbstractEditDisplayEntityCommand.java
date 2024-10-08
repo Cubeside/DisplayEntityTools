@@ -3,6 +3,7 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.bukkit.commands.SubCommand;
 import de.iani.cubesideutils.bukkit.commands.exceptions.DisallowsCommandBlockException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.IllegalSyntaxException;
@@ -10,7 +11,6 @@ import de.iani.cubesideutils.bukkit.commands.exceptions.InternalCommandException
 import de.iani.cubesideutils.bukkit.commands.exceptions.NoPermissionException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.RequiresPlayerException;
 import de.iani.cubesideutils.commands.ArgsParser;
-import de.iani.playerUUIDCache.CachedPlayer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -18,8 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
@@ -68,22 +66,26 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
         Player player = (Player) sender;
         UUID editing = plugin.getCurrentEditingDisplayEntity(player.getUniqueId());
         if (editing == null) {
-            sender.sendMessage(Component.text("Du hast kein Display-Entity ausgewählt!").color(NamedTextColor.RED));
+            Messages.sendError(sender, "Du hast kein Display-Entity ausgewählt!");
             return true;
         }
         DisplayEntityData displayEntity = null;
         Entity e = player.getWorld().getEntity(editing);
         if (!(e instanceof Display d)) {
-            sender.sendMessage(Component.text("Du hast kein Display-Entity ausgewählt!").color(NamedTextColor.RED));
+            Messages.sendError(sender, "Du hast kein Display-Entity ausgewählt!");
             return true;
         }
         displayEntity = new DisplayEntityData(plugin, d);
         if (getRequiredType() != null && displayEntity.getType() != getRequiredType()) {
-            sender.sendMessage(Component.text("Dieser Befehl ist für dieses Display-Entity nicht verfügbar!").color(NamedTextColor.RED));
+            Messages.sendError(sender, "Dieser Befehl ist für dieses Display-Entity nicht verfügbar!");
             return true;
         }
         if (!plugin.canEdit(player, displayEntity)) {
-            sender.sendMessage(Component.text("Du hast keine Berechtigung, dieses Display-Entity zu bearbeiten!").color(NamedTextColor.RED));
+            Messages.sendError(sender, "Du hast keine Berechtigung, dieses Display-Entity zu bearbeiten!");
+            return true;
+        }
+        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
+            Messages.sendError(player, "Du bist zu weit von der Position des Display-Entities entfernt!");
             return true;
         }
         return onEditDisplayEntityCommand(player, displayEntity, command, alias, commandString, args);
@@ -117,35 +119,5 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
 
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
         return List.of();
-    }
-
-    public static String getNameAndOwner(DisplayEntityToolsPlugin plugin, Player player, DisplayEntityData displayEntity) {
-        StringBuilder name = new StringBuilder();
-        if (displayEntity.getName() != null) {
-            name.append("'").append(displayEntity.getName()).append("' ");
-        }
-        if (!displayEntity.getOwner().isEmpty() && !displayEntity.getOwner().contains(player.getUniqueId())) {
-            boolean first = true;
-            for (UUID ownerId : displayEntity.getOwner()) {
-                CachedPlayer cp = plugin.getPlayerUUIDCache().getPlayer(ownerId);
-                if (cp != null) {
-                    if (first) {
-                        name.append("von ");
-                    } else {
-                        name.append(", ");
-                    }
-                    name.append(cp.getName());
-                    first = false;
-                }
-            }
-            if (!first) {
-                name.append(" ");
-            }
-        }
-        return name.toString();
-    }
-
-    public String getNameAndOwner(Player player, DisplayEntityData displayEntity) {
-        return getNameAndOwner(plugin, player, displayEntity);
     }
 }

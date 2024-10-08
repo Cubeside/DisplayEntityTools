@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -67,14 +67,10 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
             }
         }
         if (color == null && !defaultColor) {
-            player.sendMessage(Component.text("Ungültige Farbe: " + colorHex).color(NamedTextColor.RED));
+            Messages.sendError(player, "Ungültige Farbe: " + colorHex);
             return true;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         if (defaultColor) {
             ((TextDisplay) displayEntity.getEntity()).setDefaultBackground(true);
         } else {
@@ -82,8 +78,8 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
             deprecatedSetBackgroundColor((TextDisplay) displayEntity.getEntity(), color);
         }
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "verwendet nun " + (defaultColor ? "die Standard-Hintergrundfarbe" : ("die Hintergrundfarbe " + toHex(color))) + ".").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("verwendet nun " + (defaultColor ? "die Standard-Hintergrundfarbe" : ("die Hintergrundfarbe " + toHex(color))) + ".")));
         return true;
     }
 

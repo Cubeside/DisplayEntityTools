@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
@@ -37,14 +37,10 @@ public class SetTextShadowCommand extends AbstractEditDisplayEntityCommand {
             return false;
         }
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         ((TextDisplay) displayEntity.getEntity()).setShadowed(shadow);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Der Text des Display-Entities " + name + "hat nun " + (shadow ? "" : "keinen ") + "Schatten.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Der Text des Display-Entities ").append(name).append(Component.text("hat nun " + (shadow ? "" : "keinen ") + "Schatten.")));
         return true;
     }
 

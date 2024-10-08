@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -44,7 +44,7 @@ public class SetPositionCommand extends AbstractEditDisplayEntityCommand {
             try {
                 x = str.isEmpty() ? 0 : Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for x: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for x: " + str);
                 return true;
             }
             if (rel) {
@@ -61,7 +61,7 @@ public class SetPositionCommand extends AbstractEditDisplayEntityCommand {
             try {
                 y = str.isEmpty() ? 0 : Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for y: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for y: " + str);
                 return true;
             }
             if (rel) {
@@ -78,7 +78,7 @@ public class SetPositionCommand extends AbstractEditDisplayEntityCommand {
             try {
                 z = str.isEmpty() ? 0 : Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for z: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for z: " + str);
                 return true;
             }
             if (rel) {
@@ -87,21 +87,21 @@ public class SetPositionCommand extends AbstractEditDisplayEntityCommand {
         }
         Location newDisplayLoc = displayLoc.clone().set(x, y, z);
         if (newDisplayLoc.distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der neuen Position des Display-Entities entfernt!").color(NamedTextColor.RED));
+            Messages.sendError(player, "Du bist zu weit von der neuen Position des Display-Entities entfernt!");
             return true;
         }
         if (plugin.getWorldGuardHelper() != null && !plugin.getWorldGuardHelper().canBuild(player, newDisplayLoc)) {
-            player.sendMessage(Component.text("Du hast an der Zielposition keine Baurechte.").color(NamedTextColor.RED));
+            Messages.sendError(player, "Du hast an der Zielposition keine Baurechte.");
             return true;
         }
 
         displayEntity.teleport(newDisplayLoc);
 
-        String name = getNameAndOwner(player, displayEntity);
+        Component name = displayEntity.getNameAndOwner(player);
         String fx = format.format(x);
         String fy = format.format(y);
         String fz = format.format(z);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "wurde an die Position " + fx + " " + fy + " " + fz + " bewegt.").color(NamedTextColor.GREEN));
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("wurde an die Position " + fx + " " + fy + " " + fz + " bewegt.")));
         return true;
     }
 

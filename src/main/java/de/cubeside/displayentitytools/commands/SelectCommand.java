@@ -2,7 +2,7 @@ package de.cubeside.displayentitytools.commands;
 
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
-import de.cubeside.displayentitytools.commands.edit.AbstractEditDisplayEntityCommand;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.bukkit.commands.SubCommand;
 import de.iani.cubesideutils.bukkit.commands.exceptions.DisallowsCommandBlockException;
 import de.iani.cubesideutils.bukkit.commands.exceptions.IllegalSyntaxException;
@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
@@ -63,15 +62,15 @@ public class SelectCommand extends SubCommand {
             }
         }
         if (displayEntity == null) {
-            sender.sendMessage(Component.text("Display-Entity nicht gefunden.").color(NamedTextColor.RED));
+            Messages.sendError(player, "Display-Entity nicht gefunden.");
             return true;
         }
         if (!plugin.canEdit(player, displayEntity)) {
-            sender.sendMessage(Component.text("Du hast keine Berechtigung, dieses Display-Entity zu bearbeiten.").color(NamedTextColor.RED));
+            Messages.sendError(player, "Du hast keine Berechtigung, dieses Display-Entity zu bearbeiten.");
             return true;
         }
-        String name = AbstractEditDisplayEntityCommand.getNameAndOwner(plugin, player, displayEntity);
-        sender.sendMessage(Component.text("Das Display-Entity " + name + "wurde ausgewählt!").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("wurde ausgewählt!")));
         plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), displayEntity.getUUID());
         return true;
     }

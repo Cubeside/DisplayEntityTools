@@ -3,11 +3,11 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -44,7 +44,7 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
             try {
                 alpha = str.isEmpty() ? 0 : Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for alpha: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, Component.text("Invalid value for alpha: " + str));
                 return true;
             }
             if (rel) {
@@ -63,7 +63,7 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
             try {
                 pitch = str.isEmpty() ? 0 : Double.parseDouble(str);
             } catch (NumberFormatException e) {
-                player.sendMessage(Component.text("Invalid value for pitch: " + str).color(NamedTextColor.RED));
+                Messages.sendError(player, "Invalid value for pitch: " + str);
                 return true;
             }
             if (rel) {
@@ -78,16 +78,12 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
         if (!Double.isNaN(pitch)) {
             newDisplayLoc.setPitch((float) pitch);
         }
-        if (newDisplayLoc.distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         displayEntity.teleport(newDisplayLoc);
 
-        String name = getNameAndOwner(player, displayEntity);
+        Component name = displayEntity.getNameAndOwner(player);
         String falpha = format.format(alpha);
         String fpitch = Double.isNaN(pitch) ? "" : format.format(pitch);
-        player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun die Rotation " + falpha + (Double.isNaN(pitch) ? "" : (" und den Pitch " + fpitch)) + ".").color(NamedTextColor.GREEN));
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Rotation " + falpha + (Double.isNaN(pitch) ? "" : (" und den Pitch " + fpitch)) + ".")));
         return true;
     }
 

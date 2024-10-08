@@ -3,6 +3,7 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.commands.ArgsParser;
 import de.iani.playerUUIDCache.CachedPlayer;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class AddOrRemoveOwnerCommand extends AbstractEditDisplayEntityCommand {
             String ownerName = args.getNext();
             CachedPlayer owner = plugin.getPlayerUUIDCache().getPlayerFromNameOrUUID(ownerName);
             if (owner == null) {
-                player.sendMessage(Component.text("Unbekannter Spieler: " + ownerName).color(NamedTextColor.RED));
+                Messages.sendError(player, "Unbekannter Spieler: " + ownerName);
             } else {
                 ownersToAdd.add(owner.getUUID());
             }
@@ -59,25 +60,21 @@ public class AddOrRemoveOwnerCommand extends AbstractEditDisplayEntityCommand {
                 name = "'" + displayEntity.getName() + "' ";
             }
 
-            StringBuilder owners = new StringBuilder();
+            Component ownerComp = Component.text("");
             boolean first = true;
             for (UUID ownerId : displayEntity.getOwner()) {
                 if (!first) {
-                    owners.append(", ");
+                    ownerComp = ownerComp.append(Component.text(", "));
                 }
                 first = false;
                 CachedPlayer cp = plugin.getPlayerUUIDCache().getPlayer(ownerId);
-                if (cp != null) {
-                    owners.append(cp.getName());
-                } else {
-                    owners.append(ownerId.toString());
-                }
+                ownerComp = ownerComp.append(Component.text(cp != null ? cp.getName() : ownerId.toString(), NamedTextColor.WHITE));
             }
 
             if (displayEntity.getOwner().size() == 0) {
-                player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun keinen Besitzer.").color(NamedTextColor.GREEN));
+                Messages.sendSuccess(player, "Das Display-Entity " + name + "hat nun keinen Besitzer.");
             } else {
-                player.sendMessage(Component.text("Das Display-Entity " + name + "hat nun " + (displayEntity.getOwner().size() == 1 ? "den" : "die") + " Besitzer: " + owners.toString()).color(NamedTextColor.GREEN));
+                Messages.sendSuccess(player, Component.text("Das Display-Entity " + name + "hat nun " + (displayEntity.getOwner().size() == 1 ? "den" : "die") + " Besitzer: ").append(ownerComp));
             }
         }
         return true;

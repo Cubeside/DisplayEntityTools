@@ -3,12 +3,12 @@ package de.cubeside.displayentitytools.commands.edit;
 import de.cubeside.displayentitytools.DisplayEntityData;
 import de.cubeside.displayentitytools.DisplayEntityToolsPlugin;
 import de.cubeside.displayentitytools.DisplayEntityType;
+import de.cubeside.displayentitytools.util.Messages;
 import de.iani.cubesideutils.StringUtilCore;
 import de.iani.cubesideutils.commands.ArgsParser;
 import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -51,6 +51,8 @@ public class SetTextCommand extends AbstractEditDisplayEntityCommand {
             if (oldStr != null && !oldStr.isBlank()) {
                 if (mode == Mode.ADDLINE) {
                     str = oldStr + "\n" + str;
+                } else if (mode == Mode.SET) {
+                    str = oldStr + str.replace("|", "\n");
                 } else {
                     str = oldStr + str;
                 }
@@ -58,14 +60,10 @@ public class SetTextCommand extends AbstractEditDisplayEntityCommand {
         }
         Component textComponent = LegacyComponentSerializer.legacySection().deserialize(str);
 
-        if (displayEntity.getLocation().distanceSquared(player.getLocation()) > 100 * 100) {
-            player.sendMessage(Component.text("Du bist zu weit von der Position des Display-Entities entfernt!").color(NamedTextColor.RED));
-            return true;
-        }
         ((TextDisplay) displayEntity.getEntity()).text(textComponent);
 
-        String name = getNameAndOwner(player, displayEntity);
-        player.sendMessage(Component.text("Text für das Display-Entity " + name + "wurde bearbeitet.").color(NamedTextColor.GREEN));
+        Component name = displayEntity.getNameAndOwner(player);
+        Messages.sendSuccess(player, Component.text("Text für das Display-Entity ").append(name).append(Component.text("wurde bearbeitet.")));
         return true;
     }
 
@@ -74,7 +72,7 @@ public class SetTextCommand extends AbstractEditDisplayEntityCommand {
         if (mode == Mode.SET && args.remaining() == 1) {
             Component textComp = ((TextDisplay) displayEntity.getEntity()).text();
 
-            String text = textComp == null ? null : StringUtilCore.revertColors(LegacyComponentSerializer.legacySection().serialize(textComp));
+            String text = textComp == null ? null : StringUtilCore.revertColors(LegacyComponentSerializer.legacySection().serialize(textComp)).replace("\n", "|");
             return text == null ? List.of() : List.of(text);
         }
         return List.of();
