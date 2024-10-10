@@ -75,7 +75,7 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
             ((TextDisplay) displayEntity.getEntity()).setDefaultBackground(true);
         } else {
             ((TextDisplay) displayEntity.getEntity()).setDefaultBackground(false);
-            deprecatedSetBackgroundColor((TextDisplay) displayEntity.getEntity(), color);
+            ((TextDisplay) displayEntity.getEntity()).setBackgroundColor(color);
         }
 
         Component name = displayEntity.getNameAndOwner(player);
@@ -86,7 +86,7 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
     @Override
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
         if (args.remaining() == 1) {
-            Color bgColor = deprecatedGetBackgroundColor((TextDisplay) displayEntity.getEntity());
+            Color bgColor = ((TextDisplay) displayEntity.getEntity()).getBackgroundColor();
             if (bgColor != null) {
                 return List.of("default", toHex(bgColor));
             } else {
@@ -102,15 +102,5 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
             hexString = "0" + hexString;
         }
         return "#" + hexString;
-    }
-
-    @SuppressWarnings("deprecation")
-    private void deprecatedSetBackgroundColor(TextDisplay displayEntity, Color color) {
-        displayEntity.setBackgroundColor(color);
-    }
-
-    @SuppressWarnings("deprecation")
-    private Color deprecatedGetBackgroundColor(TextDisplay displayEntity) {
-        return displayEntity.getBackgroundColor();
     }
 }
