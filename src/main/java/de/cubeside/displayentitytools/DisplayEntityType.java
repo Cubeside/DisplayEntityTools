@@ -6,26 +6,36 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
 
 public enum DisplayEntityType {
-    TEXT {
+    TEXT("Text-Display-Entity") {
         @Override
         public Class<? extends Display> getEntityClass() {
             return TextDisplay.class;
         }
     },
-    BLOCK {
+    BLOCK("Block-Display-Entity") {
         @Override
         public Class<? extends Display> getEntityClass() {
             return BlockDisplay.class;
         }
     },
-    ITEM {
+    ITEM("Item-Display-Entity") {
         @Override
         public Class<? extends Display> getEntityClass() {
             return ItemDisplay.class;
         }
     };
 
+    private final String displayName;
+
     abstract public Class<? extends Display> getEntityClass();
+
+    DisplayEntityType(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 
     public static DisplayEntityType getByClass(Class<? extends Display> clazz) {
         if (TextDisplay.class.isAssignableFrom(clazz)) {

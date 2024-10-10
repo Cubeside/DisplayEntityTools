@@ -105,7 +105,7 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
         return List.of();
     }
 
-    private String toHex(Color c) {
+    public static String toHex(Color c) {
         String hexString = Integer.toHexString(c.asRGB());
         while (hexString.length() < 6) {
             hexString = "0" + hexString;

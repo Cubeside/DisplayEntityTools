@@ -118,7 +118,15 @@ public class DisplayEntityData {
             eName += " " + name;
         }
         Component main = Component.text(eName).color(NamedTextColor.AQUA);
-        Component extra = null;
+        Component extra = getShortContentInfo();
+        if (extra != null && extra != Component.empty()) {
+            main = main.append(Component.text(" (").append(extra.color(NamedTextColor.GREEN)).append(Component.text(")")).color(NamedTextColor.WHITE));
+        }
+        return main;
+    }
+
+    public Component getShortContentInfo() {
+        Component extra = Component.empty();
         if (type == DisplayEntityType.TEXT) {
             String textString = LegacyComponentSerializer.legacySection().serialize(((TextDisplay) display).text());
             int firstNewline = textString.indexOf("\n");
@@ -133,10 +141,7 @@ public class DisplayEntityData {
             Material m = stack == null ? Material.AIR : stack.getType();
             extra = Component.text(m.getKey().asString());
         }
-        if (extra != null) {
-            main = main.append(Component.text(" (").append(extra.color(NamedTextColor.GREEN)).append(Component.text(")")).color(NamedTextColor.WHITE));
-        }
-        return main;
+        return extra;
     }
 
     public Component getDescription(Player player) {

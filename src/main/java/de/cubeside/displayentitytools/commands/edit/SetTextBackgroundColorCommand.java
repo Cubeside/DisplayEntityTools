@@ -96,7 +96,7 @@ public class SetTextBackgroundColorCommand extends AbstractEditDisplayEntityComm
         return List.of();
     }
 
-    private String toHex(Color c) {
+    public static String toHex(Color c) {
         String hexString = Integer.toHexString(c.asARGB());
         while (hexString.length() < 8) {
             hexString = "0" + hexString;

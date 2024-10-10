@@ -181,7 +181,7 @@ public class ListCommand extends SubCommand {
             Component component = e.getShortDescription();
             component = component.clickEvent(ClickEvent.runCommand("/displayentity select " + e.getUUID()));
             component = component.hoverEvent(HoverEvent.showText(e.getDescription(player)));
-            player.sendMessage(component);
+            player.sendMessage(Component.text("  ").append(component));
         }
         return true;
     }
