@@ -131,7 +131,9 @@ public class DisplayEntityData {
             String textString = LegacyComponentSerializer.legacySection().serialize(((TextDisplay) display).text());
             int firstNewline = textString.indexOf("\n");
             if (firstNewline >= 0) {
-                textString = textString.substring(0, firstNewline) + "...";
+                textString = textString.substring(0, Math.min(firstNewline, 25)) + "...";
+            } else if (textString.length() > 28) {
+                textString = textString.substring(0, 25) + "...";
             }
             extra = Component.text(StringUtil.stripColors(StringUtil.revertColors(textString)));
         } else if (type == DisplayEntityType.BLOCK) {
