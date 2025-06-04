@@ -5,11 +5,16 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Fence;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -29,6 +34,22 @@ public class PlayerListener implements Listener {
         this.plugin = plugin;
     }
 
+    @SuppressWarnings("deprecation")
+    private boolean isInteractableSuppressDeprecation(Material m) {
+        return m.isInteractable();
+    }
+
+    private boolean isRealInteractable(Block block) {
+        if (!isInteractableSuppressDeprecation(block.getType())) {
+            return false;
+        }
+        BlockData blockData = block.getBlockData();
+        if (blockData instanceof Stairs || blockData instanceof Fence) {
+            return false;
+        }
+        return true;
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
@@ -43,6 +64,14 @@ public class PlayerListener implements Listener {
         ItemStack inHand = event.getPlayer().getInventory().getItem(event.getHand());
         DisplayEntityType typeToSpawn = plugin.getDisplayEntityType(inHand);
         if (typeToSpawn == null) {
+            return;
+        }
+        if (!event.hasBlock()) {
+            event.setCancelled(true);
+            return;
+        }
+        if (!event.getPlayer().isSneaking() && isRealInteractable(event.getClickedBlock())) {
+            event.setUseItemInHand(Result.DENY);
             return;
         }
         event.setCancelled(true);
@@ -97,15 +126,19 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEntityEvent event) {
-        if (plugin.getDisplayEntityType(event.getPlayer().getInventory().getItem(event.getHand())) != null) {
-            event.setCancelled(true);
+        if (!(event.getRightClicked() instanceof ItemFrame)) {
+            if (plugin.getDisplayEntityType(event.getPlayer().getInventory().getItem(event.getHand())) != null) {
+                event.setCancelled(true);
+            }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractAtEntityEvent event) {
-        if (plugin.getDisplayEntityType(event.getPlayer().getInventory().getItem(event.getHand())) != null) {
-            event.setCancelled(true);
+        if (!(event.getRightClicked() instanceof ItemFrame)) {
+            if (plugin.getDisplayEntityType(event.getPlayer().getInventory().getItem(event.getHand())) != null) {
+                event.setCancelled(true);
+            }
         }
     }
 
