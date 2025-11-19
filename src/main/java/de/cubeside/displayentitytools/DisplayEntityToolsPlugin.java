@@ -29,6 +29,7 @@ import de.cubeside.displayentitytools.commands.edit.SetTextShadowCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTransformMatrixCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTransformRotationCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTransformTranslationScaleCommand;
+import de.cubeside.displayentitytools.commands.edit.SetViewDistanceCommand;
 import de.cubeside.nmsutils.NMSUtils;
 import de.iani.cubesideutils.bukkit.commands.CommandRouter;
 import de.iani.cubesideutils.bukkit.items.CustomHeads;
@@ -136,6 +137,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new SetTextAlphaCommand(this), "settextalpha");
         displayentityCommands.addCommandMapping(new SetTextBackgroundColorCommand(this), "settextbackgroundcolor");
         displayentityCommands.addCommandMapping(new SetTextLineWidthCommand(this), "settextlinewidth");
+        displayentityCommands.addCommandMapping(new SetViewDistanceCommand(this), "setviewdistance");
 
         displayentityCommands.addCommandMapping(new SetItemCommand(this), "setitem");
         displayentityCommands.addCommandMapping(new SetBlockCommand(this), "setblock");
