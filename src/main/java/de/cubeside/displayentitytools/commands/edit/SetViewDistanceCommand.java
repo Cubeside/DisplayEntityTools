@@ -24,7 +24,7 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public String getUsage() {
-        return "[x32 blocks]";
+        return "[blocks]";
     }
 
     @Override
@@ -43,11 +43,11 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
             }
         }
         Display display = (Display) (displayEntity.getEntity());
-        display.setViewRange(dist);
+        display.setViewRange(dist / 32);
 
         Component name = displayEntity.getNameAndOwner(player);
         String fdist = format.format(dist);
-        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Sichtweite " + fdist + " x 32 Blöcke.")));
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Sichtweite " + fdist + "  Blöcke (bei 100% Entity-Renderdistanz).")));
         return true;
     }
 
@@ -55,7 +55,7 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
         if (displayEntity.getEntity() instanceof Display display) {
             if (args.remaining() == 1) {
-                return List.of(format.format(display.getViewRange()));
+                return List.of(format.format(display.getViewRange() * 32));
             }
         }
         return List.of();
