@@ -24,7 +24,7 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public String getUsage() {
-        return "[blocks]";
+        return "[x32 blocks]";
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
 
         Component name = displayEntity.getNameAndOwner(player);
         String fdist = format.format(dist);
-        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Sichtweite " + fdist + " Blöcke.")));
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Sichtweite " + fdist + " x 32 Blöcke.")));
         return true;
     }
 
