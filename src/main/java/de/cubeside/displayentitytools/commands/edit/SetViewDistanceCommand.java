@@ -47,7 +47,7 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
 
         Component name = displayEntity.getNameAndOwner(player);
         String fdist = format.format(dist);
-        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Sichtweite " + fdist + "  Blöcke (bei 100% Entity-Renderdistanz).")));
+        Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun die Sichtweite " + fdist + " Blöcke (bei 100% Entity-Renderdistanz).")));
         return true;
     }
 
