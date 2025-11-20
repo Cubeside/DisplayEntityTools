@@ -18,8 +18,8 @@ public class SetRotationCommand extends AbstractEditDisplayEntityCommand {
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
