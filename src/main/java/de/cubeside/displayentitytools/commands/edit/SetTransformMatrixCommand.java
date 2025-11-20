@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.Matrix4f;
@@ -21,8 +22,8 @@ public class SetTransformMatrixCommand extends AbstractEditDisplayEntityCommand 
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -66,17 +67,17 @@ public class SetTransformMatrixCommand extends AbstractEditDisplayEntityCommand 
             Messages.sendError(player, "The transformation must be affine!");
             return false;
         }
-
-        Transformation transform = displayEntity.getEntity().getTransformation();
-        displayEntity.getEntity().setTransformationMatrix(matrix);
-        Transformation newTransform = displayEntity.getEntity().getTransformation();
+        Display display = (Display) (displayEntity.getEntity());
+        Transformation transform = display.getTransformation();
+        display.setTransformationMatrix(matrix);
+        Transformation newTransform = display.getTransformation();
 
         if (!player.hasPermission(DisplayEntityToolsPermissions.PERMISSION_UNLIMITED_VALUES)) {
             int limit = 20;
             Vector3f v = newTransform.getScale();
             if (v.x < -limit || v.x > limit || v.y < -limit || v.y > limit || v.z < -limit || v.z > limit) {
                 Messages.sendError(player, "Die Skalierungs-Werte müssen zwischen -" + limit + " und " + limit + " liegen");
-                displayEntity.getEntity().setTransformation(transform);
+                display.setTransformation(transform);
                 return true;
             }
 
@@ -84,7 +85,7 @@ public class SetTransformMatrixCommand extends AbstractEditDisplayEntityCommand 
             v = newTransform.getTranslation();
             if (v.x < -limit || v.x > limit || v.y < -limit || v.y > limit || v.z < -limit || v.z > limit) {
                 Messages.sendError(player, "Die Translations-Werte müssen zwischen -" + limit + " und " + limit + " liegen");
-                displayEntity.getEntity().setTransformation(transform);
+                display.setTransformation(transform);
                 return true;
             }
         }

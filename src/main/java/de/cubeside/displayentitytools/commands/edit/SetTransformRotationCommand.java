@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4d;
@@ -23,8 +24,8 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -85,8 +86,8 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
             y = 1;
             z = 0;
         }
-
-        Transformation transform = displayEntity.getEntity().getTransformation();
+        Display display = (Display) (displayEntity.getEntity());
+        Transformation transform = display.getTransformation();
         Quaternionf newRotation = new Quaternionf(new AxisAngle4d(alpha * Math.PI / 180.0, x, y, z));
         Transformation newTransform;
         if (left) {
@@ -94,7 +95,7 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
         } else {
             newTransform = new Transformation(transform.getTranslation(), transform.getLeftRotation(), transform.getScale(), newRotation);
         }
-        displayEntity.getEntity().setTransformation(newTransform);
+        display.setTransformation(newTransform);
 
         Component name = displayEntity.getNameAndOwner(player);
         Messages.sendSuccess(player, Component.text("Die " + (left ? "linke" : "rechte") + " Rotation der Transformation vom Display-Entity ").append(name).append(Component.text("wurde gesetzt.")));
@@ -103,16 +104,18 @@ public class SetTransformRotationCommand extends AbstractEditDisplayEntityComman
 
     @Override
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
-        Quaternionf quart = left ? displayEntity.getEntity().getTransformation().getLeftRotation() : displayEntity.getEntity().getTransformation().getRightRotation();
-        AxisAngle4d axisAngle = new AxisAngle4d(quart);
-        if (args.remaining() == 1) {
-            return List.of(format.format(axisAngle.x));
-        } else if (args.remaining() == 2) {
-            return List.of(format.format(axisAngle.y));
-        } else if (args.remaining() == 3) {
-            return List.of(format.format(axisAngle.z));
-        } else if (args.remaining() == 4) {
-            return List.of(format.format(axisAngle.angle * 180 / Math.PI));
+        if (displayEntity.getEntity() instanceof Display display) {
+            Quaternionf quart = left ? display.getTransformation().getLeftRotation() : display.getTransformation().getRightRotation();
+            AxisAngle4d axisAngle = new AxisAngle4d(quart);
+            if (args.remaining() == 1) {
+                return List.of(format.format(axisAngle.x));
+            } else if (args.remaining() == 2) {
+                return List.of(format.format(axisAngle.y));
+            } else if (args.remaining() == 3) {
+                return List.of(format.format(axisAngle.z));
+            } else if (args.remaining() == 4) {
+                return List.of(format.format(axisAngle.angle * 180 / Math.PI));
+            }
         }
         return List.of();
     }

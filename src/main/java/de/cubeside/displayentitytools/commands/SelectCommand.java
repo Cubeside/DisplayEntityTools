@@ -19,6 +19,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 
 public class SelectCommand extends SubCommand {
@@ -42,7 +43,9 @@ public class SelectCommand extends SubCommand {
     public boolean onCommand(CommandSender sender, Command command, String alias, String commandString, ArgsParser args) throws DisallowsCommandBlockException, RequiresPlayerException, NoPermissionException, IllegalSyntaxException, InternalCommandException {
         Player player = (Player) sender;
         if (args.remaining() < 1) {
-            return false;
+            Messages.sendSuccess(player, Component.text("Die Display-Entity-Auswahl wurde aufgehoben!"));
+            plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), null);
+            return true;
         }
         String nameOrUUID = args.getAll("");
         DisplayEntityData displayEntity = null;
@@ -50,10 +53,15 @@ public class SelectCommand extends SubCommand {
             Entity e = player.getWorld().getEntity(UUID.fromString(nameOrUUID));
             if (e instanceof Display d) {
                 displayEntity = new DisplayEntityData(plugin, d);
+            } else if (e instanceof Interaction d) {
+                displayEntity = new DisplayEntityData(plugin, d);
             }
         } catch (IllegalArgumentException e) {
-            ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(Display.class, player.getLocation(), 80));
-            for (Display entity : entities) {
+            ArrayList<Entity> entities = new ArrayList<>(player.getWorld().getNearbyEntities(player.getLocation(), 80, 80, 80));
+            for (Entity entity : entities) {
+                if (!(entity instanceof Display) && !(entity instanceof Interaction)) {
+                    continue;
+                }
                 DisplayEntityData data = new DisplayEntityData(plugin, entity);
                 if (nameOrUUID.equalsIgnoreCase(data.getName()) && plugin.canEdit(player, data)) {
                     displayEntity = data;
@@ -71,7 +79,7 @@ public class SelectCommand extends SubCommand {
         }
         Component name = displayEntity.getNameAndOwner(player);
         Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("wurde ausgewählt!")));
-        plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), displayEntity.getUUID());
+        plugin.setCurrentEditingDisplayEntity(player.getUniqueId(), displayEntity);
         return true;
     }
 
@@ -83,8 +91,11 @@ public class SelectCommand extends SubCommand {
         if (args.remaining() == 1) {
             ArrayList<String> names = new ArrayList<>();
             String name = args.getAll("").trim();
-            ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(Display.class, player.getLocation(), 80));
-            for (Display entity : entities) {
+            ArrayList<Entity> entities = new ArrayList<>(player.getWorld().getNearbyEntities(player.getLocation(), 80, 80, 80));
+            for (Entity entity : entities) {
+                if (!(entity instanceof Display) && !(entity instanceof Interaction)) {
+                    continue;
+                }
                 DisplayEntityData data = new DisplayEntityData(plugin, entity);
                 if (plugin.canEdit(player, data) && data.getName() != null && data.getName().startsWith(name)) {
                     names.add(data.getName());

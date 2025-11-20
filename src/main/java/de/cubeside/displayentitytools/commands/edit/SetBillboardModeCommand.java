@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.Player;
 
@@ -20,8 +21,8 @@ public class SetBillboardModeCommand extends AbstractEditDisplayEntityCommand {
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class SetBillboardModeCommand extends AbstractEditDisplayEntityCommand {
             return true;
         }
 
-        displayEntity.getEntity().setBillboard(billboard);
+        ((Display) displayEntity.getEntity()).setBillboard(billboard);
 
         Component name = displayEntity.getNameAndOwner(player);
         Messages.sendSuccess(player, Component.text("Das Display-Entity ").append(name).append(Component.text("hat nun den Billboard-Modus " + StringUtil.capitalizeFirstLetter(billboard.name(), true) + ".")));

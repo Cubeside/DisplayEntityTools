@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
@@ -23,8 +24,8 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -80,8 +81,8 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
                 return true;
             }
         }
-
-        Transformation transform = displayEntity.getEntity().getTransformation();
+        Display display = (Display) (displayEntity.getEntity());
+        Transformation transform = display.getTransformation();
         Vector3f newTranslationScale = new Vector3f((float) x, (float) y, (float) z);
         Transformation newTransform;
         if (scale) {
@@ -89,7 +90,7 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
         } else {
             newTransform = new Transformation(newTranslationScale, transform.getLeftRotation(), transform.getScale(), transform.getRightRotation());
         }
-        displayEntity.getEntity().setTransformation(newTransform);
+        display.setTransformation(newTransform);
 
         Component name = displayEntity.getNameAndOwner(player);
         Messages.sendSuccess(player, Component.text("Die " + (scale ? "Skalierung" : "Translation") + " der Transformation vom Display-Entity ").append(name).append(Component.text("wurde gesetzt.")));
@@ -98,13 +99,15 @@ public class SetTransformTranslationScaleCommand extends AbstractEditDisplayEnti
 
     @Override
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
-        Vector3f v = scale ? displayEntity.getEntity().getTransformation().getScale() : displayEntity.getEntity().getTransformation().getTranslation();
-        if (args.remaining() == 1) {
-            return List.of(format.format(v.x));
-        } else if (args.remaining() == 2) {
-            return List.of(format.format(v.y));
-        } else if (args.remaining() == 3) {
-            return List.of(format.format(v.z));
+        if (displayEntity.getEntity() instanceof Display display) {
+            Vector3f v = scale ? display.getTransformation().getScale() : display.getTransformation().getTranslation();
+            if (args.remaining() == 1) {
+                return List.of(format.format(v.x));
+            } else if (args.remaining() == 2) {
+                return List.of(format.format(v.y));
+            } else if (args.remaining() == 3) {
+                return List.of(format.format(v.z));
+            }
         }
         return List.of();
     }

@@ -22,6 +22,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 
 public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
@@ -32,7 +33,13 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
         this.plugin = plugin;
     }
 
-    public abstract DisplayEntityType getRequiredType();
+    public DisplayEntityType getRequiredType() {
+        return null;
+    }
+
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return getRequiredType() == null || getRequiredType() == type;
+    }
 
     @Override
     public boolean requiresPlayer() {
@@ -50,11 +57,11 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
         }
         DisplayEntityData displayEntity = null;
         Entity e = player.getWorld().getEntity(editing);
-        if (!(e instanceof Display d)) {
+        if (!(e instanceof Display) && !(e instanceof Interaction)) {
             return false;
         }
-        displayEntity = new DisplayEntityData(plugin, d);
-        return (getRequiredType() == null || displayEntity.getType() == getRequiredType()) && isVisible(player, displayEntity);
+        displayEntity = new DisplayEntityData(plugin, e);
+        return (hasRequiredType(displayEntity.getType())) && isVisible(player, displayEntity);
     }
 
     protected boolean isVisible(Player player, DisplayEntityData displayEntity) {
@@ -71,12 +78,12 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
         }
         DisplayEntityData displayEntity = null;
         Entity e = player.getWorld().getEntity(editing);
-        if (!(e instanceof Display d)) {
+        if (!(e instanceof Display) && !(e instanceof Interaction)) {
             Messages.sendError(sender, "Du hast kein Display-Entity ausgewählt!");
             return true;
         }
-        displayEntity = new DisplayEntityData(plugin, d);
-        if (getRequiredType() != null && displayEntity.getType() != getRequiredType()) {
+        displayEntity = new DisplayEntityData(plugin, e);
+        if (!hasRequiredType(displayEntity.getType())) {
             Messages.sendError(sender, "Dieser Befehl ist für dieses Display-Entity nicht verfügbar!");
             return true;
         }
@@ -102,12 +109,11 @@ public abstract class AbstractEditDisplayEntityCommand extends SubCommand {
         }
         DisplayEntityData displayEntity = null;
         Entity e = player.getWorld().getEntity(editing);
-        if (!(e instanceof Display d)) {
+        if (!(e instanceof Display) && !(e instanceof Interaction)) {
             return List.of();
         }
-        displayEntity = new DisplayEntityData(plugin, d);
-        DisplayEntityType requiredType = getRequiredType();
-        if (requiredType != null && displayEntity.getType() != requiredType) {
+        displayEntity = new DisplayEntityData(plugin, e);
+        if (!hasRequiredType(displayEntity.getType())) {
             return List.of();
         }
         if (!plugin.canEdit(player, displayEntity)) {

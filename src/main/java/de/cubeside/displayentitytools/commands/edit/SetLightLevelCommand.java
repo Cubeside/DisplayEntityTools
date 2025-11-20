@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Brightness;
 import org.bukkit.entity.Player;
 
@@ -18,8 +19,8 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class SetLightLevelCommand extends AbstractEditDisplayEntityCommand {
             sunlight = blocklight;
         }
 
-        displayEntity.getEntity().setBrightness(lightAuto ? null : new Brightness(blocklight, sunlight));
+        ((Display) displayEntity.getEntity()).setBrightness(lightAuto ? null : new Brightness(blocklight, sunlight));
 
         Component name = displayEntity.getNameAndOwner(player);
         if (lightAuto) {

@@ -11,8 +11,9 @@ import org.bukkit.block.data.type.Fence;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Display.Billboard;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.TextDisplay;
@@ -24,6 +25,7 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -76,7 +78,9 @@ public class PlayerListener implements Listener {
         }
         event.setCancelled(true);
         Location spawnLocation = event.getClickedBlock().getRelative(event.getBlockFace()).getLocation();
-        if (typeToSpawn != DisplayEntityType.BLOCK) {
+        if (typeToSpawn == DisplayEntityType.INTERACTION) {
+            spawnLocation.add(0.5, 0.0, 0.5);
+        } else if (typeToSpawn != DisplayEntityType.BLOCK) {
             spawnLocation.add(0.5, 0.5, 0.5);
         }
         if (plugin.getWorldGuardHelper() != null) {
@@ -85,7 +89,7 @@ public class PlayerListener implements Listener {
                 return;
             }
         }
-        Display display = null;
+        Entity display = null;
         if (typeToSpawn == DisplayEntityType.TEXT) {
             display = spawnLocation.getWorld().spawn(spawnLocation, TextDisplay.class, e -> {
                 e.text(Component.text("Neues Textdisplay"));
@@ -99,6 +103,11 @@ public class PlayerListener implements Listener {
             display = spawnLocation.getWorld().spawn(spawnLocation, BlockDisplay.class, e -> {
                 e.setBlock(Material.BEDROCK.createBlockData());
             });
+        } else if (typeToSpawn == DisplayEntityType.INTERACTION) {
+            display = spawnLocation.getWorld().spawn(spawnLocation, Interaction.class, e -> {
+                e.setInteractionWidth(1.0f);
+                e.setInteractionHeight(1.0f);
+            });
         } else {
             throw new RuntimeException("Unknown type: " + typeToSpawn);
         }
@@ -106,7 +115,7 @@ public class PlayerListener implements Listener {
             YamlConfiguration conf = new YamlConfiguration();
             conf.set("owner", event.getPlayer().getUniqueId().toString());
             display.getPersistentDataContainer().set(plugin.getDataNamespacedKey(), PersistentDataType.STRING, conf.saveToString());
-            plugin.setCurrentEditingDisplayEntity(event.getPlayer().getUniqueId(), display.getUniqueId());
+            plugin.setCurrentEditingDisplayEntity(event.getPlayer().getUniqueId(), new DisplayEntityData(plugin, display));
             Messages.sendSuccess(event.getPlayer(), "Das Display-Entity wurde gespawnt und ausgewählt.");
         } else {
             Messages.sendError(event.getPlayer(), "Das Display-Entity konnte nicht gespawnt werden.");
@@ -147,5 +156,10 @@ public class PlayerListener implements Listener {
         if (plugin.getDisplayEntityType(event.getPlayer().getInventory().getItem(event.getHand())) != null) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.setCurrentEditingDisplayEntity(event.getPlayer().getUniqueId(), null);
     }
 }

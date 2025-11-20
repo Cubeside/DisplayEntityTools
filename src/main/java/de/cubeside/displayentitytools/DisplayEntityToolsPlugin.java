@@ -19,6 +19,7 @@ import de.cubeside.displayentitytools.commands.edit.SetPositionCommand;
 import de.cubeside.displayentitytools.commands.edit.SetRotationCommand;
 import de.cubeside.displayentitytools.commands.edit.SetSeeTextThroughBlocksCommand;
 import de.cubeside.displayentitytools.commands.edit.SetShadowCommand;
+import de.cubeside.displayentitytools.commands.edit.SetSizeCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextAlignCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextAlphaCommand;
 import de.cubeside.displayentitytools.commands.edit.SetTextBackgroundColorCommand;
@@ -36,11 +37,16 @@ import de.iani.cubesideutils.bukkit.items.CustomHeads;
 import de.iani.playerUUIDCache.PlayerUUIDCache;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -53,17 +59,21 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
     public static final String ITEM_DISPLAY_NAME = "Item-Display";
     public static final String BLOCK_DISPLAY_NAME = "Block-Display";
     public static final String TEXT_DISPLAY_NAME = "Text-Display";
+    public static final String INTERACTION_NAME = "Interaction";
 
     private NamespacedKey spawnerNamespacedKey;
     private NamespacedKey dataNamespacedKey;
     private ItemStack textSpawnerItem;
     private ItemStack blockSpawnerItem;
     private ItemStack itemSpawnerItem;
+    private ItemStack interactionSpawnerItem;
     private WorldGuardHelper worldGuardHelper;
     private NMSUtils nmsUtils;
     private PlayerUUIDCache playerUUIDCache;
 
     private HashMap<UUID, UUID> currentEditingDisplayEntity = new HashMap<>();
+
+    private HashMap<UUID, UUID> currentEditingInteraction = new HashMap<>();
     private boolean ignoreDisplayEntityOwner;
 
     public DisplayEntityToolsPlugin() {
@@ -96,6 +106,60 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
 
         saveDefaultConfig();
         ignoreDisplayEntityOwner = getConfig().getBoolean("ignoreDisplayEntityOwner");
+
+        getServer().getScheduler().runTaskTimer(this, this::everySecond, 20, 20);
+    }
+
+    private void everySecond() {
+        if (!currentEditingInteraction.isEmpty()) {
+            for (Entry<UUID, UUID> e : currentEditingInteraction.entrySet()) {
+                Player player = getServer().getPlayer(e.getKey());
+                Entity entity = getServer().getEntity(e.getValue());
+                Location loc = entity.getLocation();
+                if (player != null && entity instanceof Interaction interaction && player.getWorld() == entity.getWorld() && player.getLocation().distanceSquared(loc) < 30 * 30) {
+                    double miny = loc.getY();
+                    double maxy = miny + interaction.getInteractionHeight();
+                    double w = interaction.getInteractionWidth() / 2;
+                    double minx = loc.getX() - w;
+                    double maxx = loc.getX() + w;
+                    double minz = loc.getZ() - w;
+                    double maxz = loc.getZ() + w;
+
+                    showLine(player, minx, miny, minz, maxx, miny, minz);
+                    showLine(player, maxx, miny, minz, maxx, miny, maxz);
+                    showLine(player, maxx, miny, maxz, minx, miny, maxz);
+                    showLine(player, minx, miny, maxz, minx, miny, minz);
+
+                    showLine(player, minx, maxy, minz, maxx, maxy, minz);
+                    showLine(player, maxx, maxy, minz, maxx, maxy, maxz);
+                    showLine(player, maxx, maxy, maxz, minx, maxy, maxz);
+                    showLine(player, minx, maxy, maxz, minx, maxy, minz);
+
+                    showLine(player, minx, miny, minz, minx, maxy, minz);
+                    showLine(player, maxx, miny, minz, maxx, maxy, minz);
+                    showLine(player, minx, miny, maxz, minx, maxy, maxz);
+                    showLine(player, maxx, miny, maxz, maxx, maxy, maxz);
+                }
+            }
+        }
+    }
+
+    private void showLine(Player player, double x1, double y1, double z1, double x2, double y2, double z2) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double dz = z2 - z1;
+        double dSquared = dx * dx + dy * dy + dz * dz;
+        double d = Math.sqrt(dSquared);
+        double dxrel = dx / d;
+        double dyrel = dy / d;
+        double dzrel = dz / d;
+        for (double i = 0.0; i < d; i += 0.3334) {
+            double x = x1 + i * dxrel;
+            double y = y1 + i * dyrel;
+            double z = z1 + i * dzrel;
+
+            player.spawnParticle(Particle.END_ROD, x, y, z, 1, 0, 0, 0, 0);
+        }
     }
 
     private void configureCommands() {
@@ -122,8 +186,9 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new SetLightLevelCommand(this), "setlightlevel");
         displayentityCommands.addCommandMapping(new SetShadowCommand(this), "setshadow");
         displayentityCommands.addCommandMapping(new SetGlowingCommand(this), "setglowing");
+        displayentityCommands.addCommandMapping(new SetViewDistanceCommand(this), "setviewdistance");
         displayentityCommands.addCommandMapping(new GetNbtCommand(this), "getnbt");
-
+        // Text-Display
         displayentityCommands.addCommandMapping(new SetTextCommand(this, SetTextCommand.Mode.SET), "text", "set");
         displayentityCommands.addCommandMapping(new SetTextCommand(this, SetTextCommand.Mode.ADD), "text", "add");
         displayentityCommands.addCommandMapping(new SetTextCommand(this, SetTextCommand.Mode.ADDLINE), "text", "addline");
@@ -137,10 +202,12 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         displayentityCommands.addCommandMapping(new SetTextAlphaCommand(this), "settextalpha");
         displayentityCommands.addCommandMapping(new SetTextBackgroundColorCommand(this), "settextbackgroundcolor");
         displayentityCommands.addCommandMapping(new SetTextLineWidthCommand(this), "settextlinewidth");
-        displayentityCommands.addCommandMapping(new SetViewDistanceCommand(this), "setviewdistance");
-
+        // Item-Display
         displayentityCommands.addCommandMapping(new SetItemCommand(this), "setitem");
+        // Block-Display
         displayentityCommands.addCommandMapping(new SetBlockCommand(this), "setblock");
+        // Interaction
+        displayentityCommands.addCommandMapping(new SetSizeCommand(this), "setsize");
     }
 
     private void createSpawnerItems() {
@@ -176,6 +243,17 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
                         .append(Component.text("Item-Display-Entity").color(NamedTextColor.LIGHT_PURPLE)),
                 Component.text("an dem ausgewählten Ort.").color(NamedTextColor.WHITE)));
         itemSpawnerItem.setItemMeta(meta);
+
+        interactionSpawnerItem = CustomHeads.createHead(UUID.fromString("bf269316-5e72-4af1-ac24-0a929af95c44"), "DETInteractionSpawner",
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQzYTI3ZDdlYzlkZDU0OGM3OGEwZjM4ODA0M2IzNDI0ZTA0ZWFmN2E4NzhkNjIyNDQ1NmFhMGMzZWRjZGNlOSJ9fX0=");
+        meta = interactionSpawnerItem.getItemMeta();
+        meta.getPersistentDataContainer().set(spawnerNamespacedKey, PersistentDataType.STRING, DisplayEntityType.INTERACTION.name());
+        meta.displayName(Component.text(INTERACTION_NAME).color(NamedTextColor.LIGHT_PURPLE));
+        meta.lore(List.of(
+                Component.text("Spawnt ein ").color(NamedTextColor.WHITE)
+                        .append(Component.text("Interaction-Entity").color(NamedTextColor.LIGHT_PURPLE)),
+                Component.text("an dem ausgewählten Ort.").color(NamedTextColor.WHITE)));
+        interactionSpawnerItem.setItemMeta(meta);
     }
 
     public ItemStack getSpawnerItem(DisplayEntityType type) {
@@ -183,6 +261,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
             case TEXT -> textSpawnerItem;
             case BLOCK -> blockSpawnerItem;
             case ITEM -> itemSpawnerItem;
+            case INTERACTION -> interactionSpawnerItem;
             default -> throw new IllegalArgumentException("Not implemented type: " + type);
         };
         return new ItemStack(stack);
@@ -193,6 +272,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
             case TEXT -> TEXT_DISPLAY_NAME;
             case BLOCK -> BLOCK_DISPLAY_NAME;
             case ITEM -> ITEM_DISPLAY_NAME;
+            case INTERACTION -> INTERACTION_NAME;
             default -> throw new IllegalArgumentException("Not implemented type: " + type);
         };
     }
@@ -216,11 +296,17 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
         return currentEditingDisplayEntity.get(player);
     }
 
-    public void setCurrentEditingDisplayEntity(UUID player, UUID editing) {
+    public void setCurrentEditingDisplayEntity(UUID player, DisplayEntityData editing) {
         if (editing == null) {
             currentEditingDisplayEntity.remove(player);
+            currentEditingInteraction.remove(player);
         } else {
-            currentEditingDisplayEntity.put(player, editing);
+            currentEditingDisplayEntity.put(player, editing.getUUID());
+            if (editing.getType() == DisplayEntityType.INTERACTION) {
+                currentEditingInteraction.put(player, editing.getUUID());
+            } else {
+                currentEditingInteraction.remove(player);
+            }
         }
     }
 

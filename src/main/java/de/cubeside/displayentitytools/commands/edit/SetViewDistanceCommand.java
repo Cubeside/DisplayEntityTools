@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 
 public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
@@ -17,8 +18,8 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -41,8 +42,8 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
                 return true;
             }
         }
-
-        displayEntity.getEntity().setViewRange(dist);
+        Display display = (Display) (displayEntity.getEntity());
+        display.setViewRange(dist);
 
         Component name = displayEntity.getNameAndOwner(player);
         String fdist = format.format(dist);
@@ -52,8 +53,10 @@ public class SetViewDistanceCommand extends AbstractEditDisplayEntityCommand {
 
     @Override
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
-        if (args.remaining() == 1) {
-            return List.of(format.format(displayEntity.getEntity().getViewRange()));
+        if (displayEntity.getEntity() instanceof Display display) {
+            if (args.remaining() == 1) {
+                return List.of(format.format(display.getViewRange()));
+            }
         }
         return List.of();
     }

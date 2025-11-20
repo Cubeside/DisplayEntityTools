@@ -27,6 +27,8 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -133,7 +135,7 @@ public class ListCommand extends SubCommand {
             }
         }
 
-        Class<? extends Display> clazz = Display.class;
+        Class<? extends Entity> clazz = null;
         if (type != null) {
             clazz = type.getEntityClass();
         }
@@ -142,8 +144,11 @@ public class ListCommand extends SubCommand {
         Location eyeLocation = player.getEyeLocation();
         ArrayList<DisplayEntityData> displayEntities = new ArrayList<>();
         {
-            final ArrayList<Display> entities = new ArrayList<>(player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
-            for (Display entity : entities) {
+            final ArrayList<Entity> entities = new ArrayList<>(clazz == null ? player.getWorld().getNearbyEntities(playerLoc, radius, radius, radius) : player.getWorld().getNearbyEntitiesByType(clazz, playerLoc, radius));
+            for (Entity entity : entities) {
+                if (clazz == null && (!(entity instanceof Display) && !(entity instanceof Interaction))) {
+                    continue;
+                }
                 if (angle != 360) {
                     final Vector playerLookVector = playerLoc.getDirection();
                     final Vector entityDirectionVector = entity.getLocation().toVector().subtract(eyeLocation.toVector()).normalize();

@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Color;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 
 public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
@@ -19,8 +20,8 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
     }
 
     @Override
-    public DisplayEntityType getRequiredType() {
-        return null;
+    public boolean hasRequiredType(DisplayEntityType type) {
+        return type == DisplayEntityType.BLOCK || type == DisplayEntityType.ITEM || type == DisplayEntityType.TEXT;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
             displayEntity.getEntity().setGlowing(false);
         } else {
             displayEntity.getEntity().setGlowing(true);
-            displayEntity.getEntity().setGlowColorOverride(color);
+            ((Display) displayEntity.getEntity()).setGlowColorOverride(color);
         }
 
         Component name = displayEntity.getNameAndOwner(player);
@@ -95,7 +96,7 @@ public class SetGlowingCommand extends AbstractEditDisplayEntityCommand {
     @Override
     public Collection<String> onDisplayEntityTabComplete(Player player, DisplayEntityData displayEntity, Command command, String alias, ArgsParser args) {
         if (args.remaining() == 1) {
-            Color bgColor = displayEntity.getEntity().getGlowColorOverride();
+            Color bgColor = ((Display) displayEntity.getEntity()).getGlowColorOverride();
             if (bgColor != null) {
                 return List.of("false", toHex(bgColor));
             } else {

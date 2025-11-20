@@ -17,7 +17,8 @@ import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
@@ -26,13 +27,13 @@ import org.bukkit.persistence.PersistentDataType;
 
 public class DisplayEntityData {
     private final DisplayEntityToolsPlugin plugin;
-    private final Display display;
+    private final Entity display;
     private final DisplayEntityType type;
     private Set<UUID> owner = Set.of();
     private String name;
     private Location location;
 
-    public DisplayEntityData(DisplayEntityToolsPlugin plugin, Display display) {
+    public DisplayEntityData(DisplayEntityToolsPlugin plugin, Entity display) {
         this.plugin = plugin;
         this.display = display;
         this.type = DisplayEntityType.getByClass(display.getClass());
@@ -142,6 +143,8 @@ public class DisplayEntityData {
             ItemStack stack = ((ItemDisplay) display).getItemStack();
             Material m = stack == null ? Material.AIR : stack.getType();
             extra = Component.text(m.getKey().asString());
+        } else if (type == DisplayEntityType.INTERACTION) {
+            extra = Component.text(((Interaction) display).getInteractionWidth() + " x " + ((Interaction) display).getInteractionHeight());
         }
         return extra;
     }
@@ -222,7 +225,7 @@ public class DisplayEntityData {
         display.teleport(location);
     }
 
-    public Display getEntity() {
+    public Entity getEntity() {
         return display;
     }
 
