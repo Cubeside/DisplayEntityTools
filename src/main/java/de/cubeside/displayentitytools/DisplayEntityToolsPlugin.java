@@ -115,7 +115,7 @@ public class DisplayEntityToolsPlugin extends JavaPlugin {
             for (Entry<UUID, UUID> e : currentEditingInteraction.entrySet()) {
                 Player player = getServer().getPlayer(e.getKey());
                 Entity entity = getServer().getEntity(e.getValue());
-                Location loc = entity.getLocation();
+                Location loc = entity == null ? null : entity.getLocation();
                 if (player != null && entity instanceof Interaction interaction && player.getWorld() == entity.getWorld() && player.getLocation().distanceSquared(loc) < 30 * 30) {
                     double miny = loc.getY();
                     double maxy = miny + interaction.getInteractionHeight();
